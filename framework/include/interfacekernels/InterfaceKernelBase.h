@@ -64,14 +64,6 @@ public:
   void prepareShapes(unsigned int var_num) override final;
 
 protected:
-  /// Compute jacobians at quadrature points
-  virtual Real computeQpJacobian(Moose::DGJacobianType /*type*/) { return 0; }
-
-  /// compute off-diagonal jacobian components at quadrature points
-  virtual Real computeQpOffDiagJacobian(Moose::DGJacobianType /*type*/, unsigned int /*jvar*/)
-  {
-    return 0;
-  }
 
   /// The volume of the current neighbor
   const Real & getNeighborElemVolume();

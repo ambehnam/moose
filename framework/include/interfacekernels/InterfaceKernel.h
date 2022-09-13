@@ -80,6 +80,35 @@ public:
   /// Compute residuals at quadrature points
   virtual Real computeQpResidual(Moose::DGResidualType type) = 0;
 
+  /// Compute jacobians at quadrature points
+  virtual Real computeQpJacobian(Moose::DGJacobianType /*type*/) { return 0; }
+
+  /// compute off-diagonal jacobian components at quadrature points
+  virtual Real computeQpOffDiagJacobian(Moose::DGJacobianType /*type*/, unsigned int /*jvar*/)
+  {
+    return 0;
+  }
+
+  /**
+   * Insertion point for evaluations that depend on qp but are independent of the test functions.
+   */
+  virtual void precalculateQpResidual(Moose::DGResidualType /*type*/) {}
+
+  /**
+   * Insertion point for evaluations that depend on qp but are independent of the test and shape
+   * functions.
+   */
+  virtual void precalculateQpJacobian(Moose::DGJacobianType /*type*/) {}
+
+  /**
+   * Insertion point for evaluations that depend on qp but are independent of the test and shape
+   * functions for off-diagonal Jacobian assembly.
+   */
+  virtual void precalculateQpOffDiagJacobian(Moose::DGJacobianType /*type*/,
+                                             const MooseVariableFEBase & /*jvar*/)
+  {
+  }
+
 protected:
   /// The primary side MooseVariable
   MooseVariableFE<T> & _var;
