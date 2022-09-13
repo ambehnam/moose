@@ -177,3 +177,22 @@ LowerDIntegratedBC::computeLowerDOffDiagJacobian(Moose::ConstraintJacobianType t
 
   accumulateTaggedLocalMatrix();
 }
+
+void
+LowerDIntegratedBC::computeOffDiagJacobianScalar(const unsigned int jvar)
+{
+  IntegratedBC::computeOffDiagJacobianScalar(jvar);
+
+  prepareMatrixTag(_assembly, _lowerd_var.number(), jvar); // prepareMatrixTagLowerScalar(_assembly, _lowerd_var.number(), jvar, Moose::Lower)
+
+  MooseVariableScalar & jv = _sys.getScalarVariable(_tid, jvar);
+  for (_qp = 0; _qp < _qrule->n_points(); _qp++)
+  {
+    initLowerDQpOffDiagJacobianScalar(jvar);
+    for (_i = 0; _i < _test_lambda.size(); _i++)
+      for (_j = 0; _j < jv.order(); _j++)
+        _local_ke(_i, _j) += _JxW[_qp] * _coord[_qp] * computeLowerDQpOffDiagJacobianScalar(jvar);
+  }
+
+  accumulateTaggedLocalMatrix();
+}

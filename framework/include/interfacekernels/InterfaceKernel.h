@@ -105,7 +105,7 @@ public:
    * functions for off-diagonal Jacobian assembly.
    */
   virtual void precalculateQpOffDiagJacobian(Moose::DGJacobianType /*type*/,
-                                             const MooseVariableFEBase & /*jvar*/)
+                                             const unsigned int /*jvar*/)
   {
   }
 

@@ -24,6 +24,7 @@ public:
   virtual void computeResidual() override;
   virtual void computeJacobian() override;
   virtual void computeOffDiagJacobian(unsigned int jvar) override;
+  virtual void computeOffDiagJacobianScalar(unsigned int jvar) override;
 
 protected:
   /**
@@ -51,28 +52,44 @@ protected:
   /**
    * Method for computing an off-diagonal jacobian component at quadrature points.
    */
-  virtual Real computeLowerDQpOffDiagJacobian(Moose::ConstraintJacobianType,
-                                              const MooseVariableFEBase &)
+  virtual Real computeLowerDQpOffDiagJacobian(Moose::ConstraintJacobianType /*type*/,
+                                             const MooseVariableFEBase & /*jvar*/)
   {
     return 0;
   }
 
   /**
-   * Put necessary evaluations depending on qp but independent on test functions here
+   * Method for computing an off-diagonal jacobian scalar component at quadrature points.
+   */
+  virtual Real computeLowerDQpOffDiagJacobianScalar(const unsigned int /*jvar*/)
+  {
+    return 0;
+  }
+
+  /**
+   * Put necessary evaluations depending on qp but independent of test functions here
    */
   virtual void initLowerDQpResidual() {}
 
   /**
-   * Put necessary evaluations depending on qp but independent on test and shape functions here
+   * Put necessary evaluations depending on qp but independent of test and shape functions here
    */
-  virtual void initLowerDQpJacobian(Moose::ConstraintJacobianType) {}
+  virtual void initLowerDQpJacobian(Moose::ConstraintJacobianType /*type*/) {}
 
   /**
-   * Put necessary evaluations depending on qp but independent on test and shape functions here for
+   * Put necessary evaluations depending on qp but independent of lower test and shape functions here for
    * off-diagonal Jacobian assembly
    */
-  virtual void initLowerDQpOffDiagJacobian(Moose::ConstraintJacobianType,
-                                           const MooseVariableFEBase &)
+  virtual void initLowerDQpOffDiagJacobian(Moose::ConstraintJacobianType /*type*/,
+                                           const MooseVariableFEBase & /*jvar*/)
+  {
+  }
+
+  /**
+   * Put necessary evaluations depending on qp but independent of lower test and shape functions here for
+   * off-diagonal Jacobian scalar assembly
+   */
+  virtual void initLowerDQpOffDiagJacobianScalar(const unsigned int /*jvar*/)
   {
   }
 
