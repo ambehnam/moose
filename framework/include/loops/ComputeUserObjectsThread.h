@@ -22,6 +22,7 @@ class InternalSideUserObject;
 class ElementUserObject;
 class ShapeElementUserObject;
 class InterfaceUserObject;
+class MortarUserObject;
 class DomainUserObject;
 
 // libMesh forward declarations
@@ -79,6 +80,7 @@ private:
   std::vector<InterfaceUserObject *> _interface_user_objects;
   std::vector<ElementUserObject *> _element_objs;
   std::vector<ShapeElementUserObject *> _shape_element_objs;
+  std::vector<MortarUserObject *> _mortar_objs;
   std::vector<DomainUserObject *> _domain_objs;
   std::vector<DomainUserObject *> _all_domain_objs;
 };

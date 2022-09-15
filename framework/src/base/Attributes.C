@@ -27,6 +27,7 @@
 #include "ShapeElementUserObject.h"
 #include "Reporter.h"
 #include "SystemBase.h"
+#include "MortarUserObject.h"
 #include "DomainUserObject.h"
 #include "ExecFlagRegistry.h"
 
@@ -64,6 +65,8 @@ operator<<(std::ostream & os, Interfaces & iface)
     os << "|InterfaceUserObject";
   if (static_cast<bool>(iface & Interfaces::Reporter))
     os << "|Reporter";
+  if (static_cast<bool>(iface & Interfaces::MortarUserObject))
+    os << "|MortarUserObject";
   if (static_cast<bool>(iface & Interfaces::DomainUserObject))
     os << "|DomainUserObject";
   os << ")";
@@ -472,6 +475,7 @@ AttribInterfaces::initFrom(const MooseObject * obj)
   _val |= (unsigned int)Interfaces::BlockRestrictable         * (dynamic_cast<const BlockRestrictable *>(obj) != nullptr);
   _val |= (unsigned int)Interfaces::BoundaryRestrictable      * (dynamic_cast<const BoundaryRestrictable *>(obj) != nullptr);
   _val |= (unsigned int)Interfaces::Reporter                  * (dynamic_cast<const Reporter *>(obj) != nullptr);
+  _val |= (unsigned int)Interfaces::MortarUserObject          * (dynamic_cast<const MortarUserObject *>(obj) != nullptr);
   _val |= (unsigned int)Interfaces::DomainUserObject          * (dynamic_cast<const DomainUserObject *>(obj) != nullptr);
   // clang-format on
 }

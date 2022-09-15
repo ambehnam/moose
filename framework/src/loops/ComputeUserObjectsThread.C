@@ -20,6 +20,7 @@
 #include "SwapBackSentinel.h"
 #include "FEProblem.h"
 #include "MaterialBase.h"
+#include "MortarUserObject.h"
 #include "DomainUserObject.h"
 
 #include "libmesh/numeric_vector.h"
@@ -53,7 +54,8 @@ ComputeUserObjectsThread::subdomainChanged()
   // for the current thread get block objects for the current subdomain and *all* side objects
   std::vector<UserObject *> objs;
   querySubdomain(Interfaces::ElementUserObject | Interfaces::InternalSideUserObject |
-                     Interfaces::InterfaceUserObject | Interfaces::DomainUserObject,
+                     Interfaces::InterfaceUserObject | Interfaces::MortarUserObject |
+                     Interfaces::DomainUserObject,
                  objs);
 
   _query.clone()
@@ -159,7 +161,8 @@ ComputeUserObjectsThread::onBoundary(const Elem * elem,
 {
   std::vector<UserObject *> userobjs;
   queryBoundary(Interfaces::SideUserObject, bnd_id, userobjs);
-  if (userobjs.size() == 0 && _domain_objs.size() == 0)
+  queryBoundary(Interfaces::MortarUserObject, bnd_id, _mortar_objs);
+  if (userobjs.size() == 0 && _domain_objs.size() == 0 && _mortar_objs.size() == 0)
     return;
 
   _fe_problem.reinitElemFace(elem, side, bnd_id, _tid);
@@ -173,6 +176,17 @@ ComputeUserObjectsThread::onBoundary(const Elem * elem,
   SwapBackSentinel sentinel(_fe_problem, &FEProblem::swapBackMaterialsFace, _tid);
   _fe_problem.reinitMaterialsFace(_subdomain, _tid);
   _fe_problem.reinitMaterialsBoundary(bnd_id, _tid);
+
+  // if we do not have any interface user objects and domain user objects on the current
+  // interface
+  //if (!_mortar_objs.size() == 0)
+  //{
+  //SwapBackSentinel neighbor_sentinel(_fe_problem, &FEProblem::swapBackMaterialsNeighbor, _tid);
+  //_fe_problem.reinitMaterialsNeighbor(neighbor->subdomain_id(), _tid);
+  //}
+
+  for (const auto & uo : _mortar_objs)
+    uo->execute();
 
   for (const auto & uo : userobjs)
     uo->execute();

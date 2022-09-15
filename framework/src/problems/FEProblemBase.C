@@ -63,6 +63,7 @@
 #include "MultiAppTransfer.h"
 #include "TransientMultiApp.h"
 #include "ElementUserObject.h"
+#include "MortarUserObject.h"
 #include "DomainUserObject.h"
 #include "NodalUserObject.h"
 #include "SideUserObject.h"
@@ -3563,6 +3564,7 @@ FEProblemBase::addUserObject(const std::string & user_object_name,
     auto isuo = std::dynamic_pointer_cast<InternalSideUserObject>(user_object);
     auto iuob = std::dynamic_pointer_cast<InterfaceUserObjectBase>(user_object);
     auto nuo = std::dynamic_pointer_cast<NodalUserObject>(user_object);
+    auto muo = std::dynamic_pointer_cast<MortarUserObject>(user_object);
     auto duo = std::dynamic_pointer_cast<DomainUserObject>(user_object);
     auto guo = std::dynamic_pointer_cast<GeneralUserObject>(user_object);
     auto tguo = std::dynamic_pointer_cast<ThreadedGeneralUserObject>(user_object);
@@ -3902,8 +3904,8 @@ FEProblemBase::computeUserObjectsInternal(const ExecFlagType & type,
   std::vector<UserObject *> userobjs;
   query.clone()
       .condition<AttribInterfaces>(Interfaces::ElementUserObject | Interfaces::SideUserObject |
-                                   Interfaces::InternalSideUserObject |
-                                   Interfaces::InterfaceUserObject | Interfaces::DomainUserObject)
+                                   Interfaces::InternalSideUserObject | Interfaces::InterfaceUserObject | 
+                                   Interfaces::MortarUserObject | Interfaces::DomainUserObject)
       .queryInto(userobjs);
 
   std::vector<UserObject *> tgobjs;
@@ -3963,6 +3965,7 @@ FEProblemBase::computeUserObjectsInternal(const ExecFlagType & type,
     joinAndFinalize(query.clone().condition<AttribInterfaces>(Interfaces::InternalSideUserObject));
     joinAndFinalize(query.clone().condition<AttribInterfaces>(Interfaces::InterfaceUserObject));
     joinAndFinalize(query.clone().condition<AttribInterfaces>(Interfaces::ElementUserObject));
+    joinAndFinalize(query.clone().condition<AttribInterfaces>(Interfaces::MortarUserObject));
     joinAndFinalize(query.clone().condition<AttribInterfaces>(Interfaces::DomainUserObject));
   }
 
