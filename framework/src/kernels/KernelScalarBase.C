@@ -202,20 +202,23 @@ KernelScalarBase::computeOffDiagJacobianScalar(const unsigned int svar_num)
     }
     else if (svar_num == _kappa_var) // column for this kernel's scalar variable
     {
-      // Perform assembly using method in Kernel
+      // Perform assembly using method in Kernel; works for simple cases but not general
       // Kernel::computeOffDiagJacobianScalar(svar_num); // d-_var-residual / d-_kappa
-      // Perform assembly using DenseMatrix like d-_kappa_var-residual / d-_var
+      // Perform assembly using local_ke like d-_kappa_var-residual / d-_var
       computeOffDiagJacobianScalarLocal(svar_num); // d-_var-residual / d-_kappa
       computeScalarJacobian();                     // d-_kappa-residual / d-_kappa
     }
     else // some other column for scalar variable
     {
-      Kernel::computeOffDiagJacobianScalar(svar_num); // d-_var-residual / d-jvar
-      computeScalarOffDiagJacobianScalar(svar_num);   // d-_kappa-residual / d-jvar
+      // Perform assembly using method in Kernel; works for simple cases but not general
+      // Kernel::computeOffDiagJacobianScalar(svar_num); // d-_var-residual / d-jvar
+      // Perform assembly using local_ke like d-_kappa_var-residual / d-_var
+      computeOffDiagJacobianScalarLocal(svar_num);  // d-_var-residual / d-svar
+      computeScalarOffDiagJacobianScalar(svar_num); // d-_kappa-residual / d-svar
     }
   }
   else
-    Kernel::computeOffDiagJacobianScalar(svar_num); // d-_var-residual / d-jvar
+    Kernel::computeOffDiagJacobianScalar(svar_num); // d-_var-residual / d-svar
 }
 
 void

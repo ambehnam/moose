@@ -27,12 +27,7 @@ typedef std::map<std::pair<unsigned int, unsigned int>, std::pair<ConstraintType
     ConstraintMap;
 }
 
-/// Total Lagrangian formulation with cross-jacobian homogenization terms
-///
-///  The total Lagrangian formulation can interact with the homogenization
-///  system defined by the HomogenizationConstraintScalarKernel and
-///  HomogenizationConstraint user object by providing the
-///  correct off-diagonal Jacobian entries.
+/// Total Lagrangian formulation with all homogenization terms (one disp_xyz field and macro_gradient scalar)
 ///
 class HomogenizedTotalLagrangianStressDivergenceS : public TotalLagrangianStressDivergenceS
 {
@@ -42,17 +37,18 @@ public:
 
 protected:
   /**
-   * Method for computing the scalar part of residual
+   * Method for computing the scalar part of residual for _kappa
    */
   virtual void computeScalarResidual() override;
 
   /**
-   * Method for computing the scalar variable part of Jacobian
+   * Method for computing the scalar variable part of Jacobian for d-_kappa-residual / d-_kappa
    */
   virtual void computeScalarJacobian() override;
 
   /**
-   * Method for computing an off-diagonal jacobian component d-_kappa-residual / d-jvar
+   * Method for computing an off-diagonal jacobian component d-_kappa-residual / d-jvar.
+   * jvar is looped over all field variables, which herein is just disp_x and disp_y
    */
   virtual void computeScalarOffDiagJacobian(const unsigned int jvar_num) override;
 
@@ -61,10 +57,14 @@ protected:
    */
   virtual Real computeScalarQpOffDiagJacobian(const unsigned int jvar_num) override;
 
+  /**
+   * Method for computing an off-diagonal jacobian component d-_var-residual / d-svar.
+   * svar is looped over all scalar variables, which herein is just _kappa
+   */
   virtual void computeOffDiagJacobianScalarLocal(const unsigned int svar_num) override;
 
   /**
-   * Method for computing d-_var-residual / d-_kappa at quadrature points.
+   * Method for computing d-_var-residual / d-svar at quadrature points.
    */
   virtual Real computeQpOffDiagJacobianScalar(const unsigned int jvar) override;
 

@@ -12,12 +12,6 @@
 // MOOSE includes
 #include "Function.h"
 #include "MooseVariableScalar.h"
-// #include "Assembly.h"
-// #include "MooseVariableFE.h"
-// #include "MooseVariableScalar.h"
-// #include "SystemBase.h"
-
-// #include "libmesh/quadrature.h"
 
 registerMooseObject("TensorMechanicsTestApp", HomogenizedTotalLagrangianStressDivergenceS);
 
@@ -84,13 +78,14 @@ HomogenizedTotalLagrangianStressDivergenceS::computeScalarResidual()
 {
   std::vector<Real> scalar_residuals(_k_order);
 
-  if (_alpha == 0) // only do for the first component
+  // only assemble scalar residual once; i.e. when handling the first displacement component
+  if (_alpha == 0)
   {
     for (_qp = 0; _qp < _qrule->n_points(); _qp++)
     {
       initScalarQpResidual();
       Real dV = _JxW[_qp] * _coord[_qp];
-      _h = 0;
+      _h = 0; // single index for residual vector; double indices for constraint tensor component
       for (auto && [indices, constraint] : _cmap)
       {
         auto && [i, j] = indices;
@@ -131,7 +126,8 @@ HomogenizedTotalLagrangianStressDivergenceS::computeScalarJacobian()
 {
   _local_ke.resize(_k_order, _k_order);
 
-  if (_alpha == 0) // only do for the first component
+  // only assemble scalar residual once; i.e. when handling the first displacement component
+  if (_alpha == 0)
   {
     for (_qp = 0; _qp < _qrule->n_points(); _qp++)
     {
@@ -178,34 +174,27 @@ HomogenizedTotalLagrangianStressDivergenceS::computeScalarOffDiagJacobian(
     const unsigned int jvar_num)
 {
   const auto & jvar = getVariable(jvar_num);
-  if (jvar.fieldType() == Moose::VarFieldType::VAR_FIELD_STANDARD)
-  {
-    // Get dofs and order of this variable; at least one will be _var
-    // const auto & jv0 = static_cast<const MooseVariable &>(jvar);
-    // const auto & loc_phi = jv0.phi();
-    const auto jvar_size = jvar.phiSize();
-    _local_ke.resize(_k_order, jvar_size);
+  // Get dofs and order of this variable; at least one will be _var
+  const auto jvar_size = jvar.phiSize();
+  _local_ke.resize(_k_order, jvar_size);
 
-    for (_qp = 0; _qp < _qrule->n_points(); _qp++)
+  for (_qp = 0; _qp < _qrule->n_points(); _qp++)
+  {
+    // single index for Jacobian column; double indices for constraint tensor component
+    unsigned int h = 0;
+    Real dV = _JxW[_qp] * _coord[_qp];
+    for (auto && [indices, constraint] : _cmap)
     {
-      unsigned int h = 0;
-      Real dV = _JxW[_qp] * _coord[_qp];
-      for (auto && [indices, constraint] : _cmap)
-      {
-        _m = indices.first;
-        _n = indices.second;
-        _ctype = constraint.first;
-        initScalarQpOffDiagJacobian(jvar);
-        for (_j = 0; _j < jvar_size; _j++)
-          _local_ke(h, _j) += dV * computeScalarQpOffDiagJacobian(jvar_num);
-        h++;
-      }
+      // copy constraint indices to protected variables to pass to Qp routine
+      _m = indices.first;
+      _n = indices.second;
+      _ctype = constraint.first;
+      initScalarQpOffDiagJacobian(jvar);
+      for (_j = 0; _j < jvar_size; _j++)
+        _local_ke(h, _j) += dV * computeScalarQpOffDiagJacobian(jvar_num);
+      h++;
     }
   }
-  else if (jvar.fieldType() == Moose::VarFieldType::VAR_FIELD_ARRAY)
-    mooseError("Array variable cannot be coupled into Kernel Scalar currently");
-  else
-    mooseError("Vector variable cannot be coupled into Kernel Scalar currently");
 
   for (const auto & matrix_tag : _matrix_tags)
     _assembly.cacheJacobianBlock(_local_ke,
@@ -231,6 +220,7 @@ HomogenizedTotalLagrangianStressDivergenceS::computeOffDiagJacobianScalarLocal(
     Real dV = _JxW[_qp] * _coord[_qp];
     for (auto && [indices, constraint] : _cmap)
     {
+      // copy constraint indices to protected variables to pass to Qp routine
       _m = indices.first;
       _n = indices.second;
       _ctype = constraint.first;

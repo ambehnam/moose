@@ -43,7 +43,7 @@ public:
   virtual void computeOffDiagJacobian(unsigned int jvar_num) override;
   /**
    * Computes jacobian block with respect to a scalar variable
-   * @param jvar, the number of the (other) scalar variable
+   * @param svar, the number of the (other) scalar variable
    */
   void computeOffDiagJacobianScalar(unsigned int svar_num) override;
 

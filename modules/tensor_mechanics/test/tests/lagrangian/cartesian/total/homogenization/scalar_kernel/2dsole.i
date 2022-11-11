@@ -3,7 +3,6 @@
 [GlobalParams]
   displacements = 'disp_x disp_y'
   large_kinematics = false
-  macro_gradient = hvar
 []
 
 [Mesh]
@@ -31,7 +30,11 @@
   []
   [hvar]
     family = SCALAR
-    order = THIRD
+    order = FIRST
+  []
+  [hvarA]
+    family = SCALAR
+    order = SECOND
   []
 []
 
@@ -108,21 +111,47 @@
 []
 
 [Kernels]
-  [sdx]
-    type = HomogenizedTotalLagrangianStressDivergenceS
+  [sdx0]
+    type = HomogenizedTotalLagrangianStressDivergenceA
     variable = disp_x
     component = 0
     coupled_scalar = hvar
     macro_var = hvar
+    macro_other = hvarA
+    prime_scalar = 0
     constraint_types = ${constraint_types}
     targets = ${targets}
   []
-  [sdy]
-    type = HomogenizedTotalLagrangianStressDivergenceS
+  [sdy0]
+    type = HomogenizedTotalLagrangianStressDivergenceA
     variable = disp_y
     component = 1
     coupled_scalar = hvar
     macro_var = hvar
+    macro_other = hvarA
+    prime_scalar = 0
+    constraint_types = ${constraint_types}
+    targets = ${targets}
+  []
+  [sdx1]
+    type = HomogenizedTotalLagrangianStressDivergenceA
+    variable = disp_x
+    component = 0
+    coupled_scalar = hvarA
+    macro_var = hvarA
+    macro_other = hvar
+    prime_scalar = 1
+    constraint_types = ${constraint_types}
+    targets = ${targets}
+  []
+  [sdy1]
+    type = HomogenizedTotalLagrangianStressDivergenceA
+    variable = disp_y
+    component = 1
+    coupled_scalar = hvarA
+    macro_var = hvarA
+    macro_other = hvar
+    prime_scalar = 1
     constraint_types = ${constraint_types}
     targets = ${targets}
   []
@@ -136,6 +165,10 @@
   [null]
     type = NullScalarKernel
     variable = hvar
+  []
+  [nullA]
+    type = NullScalarKernel
+    variable = hvarA
   []
 []
 
@@ -226,7 +259,9 @@
     homogenization_gradient_names = 'homogenization_gradient'
   []
   [compute_homogenization_gradient]
-    type = ComputeHomogenizedLagrangianStrainS
+    type = ComputeHomogenizedLagrangianStrainA
+    macro_gradientA = hvar
+    macro_gradient = hvarA
     constraint_types = ${constraint_types}
     targets = ${targets}
   []
