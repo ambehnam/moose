@@ -44,9 +44,6 @@ ADKernelScalarBase::ADKernelScalarBase(const InputParameters & parameters)
 #ifndef MOOSE_GLOBAL_AD_INDEXING
   mooseError("ADKernelScalarBase only supported for global AD indexing");
 #endif
-#ifndef MOOSE_SPARSE_AD
-  mooseError("ADKernelScalarBase assembly only supported for non-sparse AD");
-#endif
 }
 
 void
