@@ -1741,7 +1741,6 @@ public:
                         const std::set<TagID> & vector_tags,
                         Real scaling_factor);
 
-#ifdef MOOSE_GLOBAL_AD_INDEXING
   /**
    * Process the value and \p derivatives() data of a vector of \p ADReals. When using global
    * indexing, this method simply caches the value (residual) for the provided \p vector_tags and
@@ -1754,7 +1753,6 @@ public:
                                    const std::set<TagID> & vector_tags,
                                    const std::set<TagID> & matrix_tags,
                                    Real scaling_factor);
-#endif
 
   /**
    * Process the \p derivatives() data of a vector of \p ADReals. When using global indexing, this

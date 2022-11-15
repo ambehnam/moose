@@ -49,9 +49,6 @@ ADKernelScalarBase::ADKernelScalarBase(const InputParameters & parameters)
 #ifndef MOOSE_GLOBAL_AD_INDEXING
   mooseError("ADKernelScalarBase only supported for global AD indexing");
 #endif
-#ifndef MOOSE_SPARSE_AD
-  mooseError("ADKernelScalarBase assembly only supported for non-sparse AD");
-#endif
 }
 
 void
@@ -84,9 +81,6 @@ ADKernelScalarBase::computeJacobian()
   if (_compute_field_residuals)
     ADKernel::computeJacobian();
 
-#ifndef MOOSE_SPARSE_AD
-  mooseError("ADKernelScalarBase assembly only supported for non-sparse AD");
-#else
   if (_compute_scalar_residuals)
   {
     computeScalarResidualsForJacobian();
@@ -96,7 +90,6 @@ ADKernelScalarBase::computeJacobian()
                                           _matrix_tags,
                                           _kappa_var_ptr->scalingFactor());
   }
-#endif
 }
 
 void
@@ -118,9 +111,6 @@ ADKernelScalarBase::computeResidualAndJacobian()
   if (_compute_field_residuals)
     ADKernel::computeResidualAndJacobian();
 
-#ifndef MOOSE_SPARSE_AD
-  mooseError("ADKernelScalarBase assembly only supported for non-sparse AD");
-#else
   if (_compute_scalar_residuals)
   {
     computeScalarResidualsForJacobian();
@@ -130,7 +120,6 @@ ADKernelScalarBase::computeResidualAndJacobian()
                                           _matrix_tags,
                                           _kappa_var_ptr->scalingFactor());
   }
-#endif
 }
 
 void
