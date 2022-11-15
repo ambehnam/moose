@@ -27,12 +27,17 @@ ADKernelScalarBase::validParams()
   // This name is fixed and required to be equal to the previous parameter; need to add error
   // checks...
   params.addCoupledVar("coupled_scalar", "Repeat name of scalar variable to ensure dependency");
+  params.addParam<bool>("compute_scalar_residuals", true, "Whether to compute scalar residuals");
+  params.addParam<bool>(
+      "compute_field_residuals", true, "Whether to compute residuals for the field variable.");
   return params;
 }
 
 ADKernelScalarBase::ADKernelScalarBase(const InputParameters & parameters)
   : ADKernel(parameters),
     _use_scalar(isParamValid("scalar_variable") ? true : false),
+    _compute_scalar_residuals(!_use_scalar ? false : getParam<bool>("compute_scalar_residuals")),
+    _compute_field_residuals(getParam<bool>("compute_field_residuals")),
     _kappa_dummy(),
     _kappa_var_ptr(
         _use_scalar ? &_sys.getScalarVariable(_tid, parameters.get<VariableName>("scalar_variable"))
@@ -52,9 +57,10 @@ ADKernelScalarBase::ADKernelScalarBase(const InputParameters & parameters)
 void
 ADKernelScalarBase::computeResidual()
 {
-  ADKernel::computeResidual(); // compute and assemble regular variable contributions
+  if (_compute_field_residuals)
+    ADKernel::computeResidual(); // compute and assemble regular variable contributions
 
-  if (_use_scalar)
+  if (_compute_scalar_residuals)
   {
     std::vector<Real> scalar_residuals(_k_order);
     for (_qp = 0; _qp < _qrule->n_points(); _qp++)
@@ -75,12 +81,13 @@ ADKernelScalarBase::computeResidual()
 void
 ADKernelScalarBase::computeJacobian()
 {
-  ADKernel::computeJacobian();
+  if (_compute_field_residuals)
+    ADKernel::computeJacobian();
 
 #ifndef MOOSE_SPARSE_AD
   mooseError("ADKernelScalarBase assembly only supported for non-sparse AD");
 #else
-  if (_use_scalar)
+  if (_compute_scalar_residuals)
   {
     computeScalarResidualsForJacobian();
     _assembly.processResidualsAndJacobian(_scalar_residuals,
@@ -108,12 +115,13 @@ ADKernelScalarBase::computeOffDiagJacobianScalar(const unsigned int /*jvar_num*/
 void
 ADKernelScalarBase::computeResidualAndJacobian()
 {
-  ADKernel::computeResidualAndJacobian();
+  if (_compute_field_residuals)
+    ADKernel::computeResidualAndJacobian();
 
 #ifndef MOOSE_SPARSE_AD
   mooseError("ADKernelScalarBase assembly only supported for non-sparse AD");
 #else
-  if (_use_scalar)
+  if (_compute_scalar_residuals)
   {
     computeScalarResidualsForJacobian();
     _assembly.processResidualsAndJacobian(_scalar_residuals,

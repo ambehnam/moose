@@ -66,7 +66,7 @@ protected:
   /**
    * Method for computing d-_var-residual / d-svar at quadrature points.
    */
-  virtual Real computeQpOffDiagJacobianScalar(const unsigned int jvar) override;
+  virtual Real computeQpOffDiagJacobianScalar(const unsigned int svar_num) override;
 
 protected:
   /// Type of each constraint (stress or strain) for each component

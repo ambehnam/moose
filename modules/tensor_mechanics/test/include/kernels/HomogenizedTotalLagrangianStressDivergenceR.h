@@ -12,7 +12,7 @@
 #include "TotalLagrangianStressDivergenceS.h"
 
 // Helpers common to the whole homogenization system
-namespace HomogenizationA
+namespace HomogenizationR
 {
 /// Moose constraint type, for input
 const MultiMooseEnum constraintType("strain stress none");
@@ -34,40 +34,32 @@ typedef std::map<std::pair<unsigned int, unsigned int>, std::pair<ConstraintType
 /// scalar (_kappa) is _avar and the coupled scalar is _hvar. Just like the primary field variable
 /// (_var) is either disp_x or disp_y or disp_z depending on _alpha.
 ///
-/// Thus, each instance of HomogenizedTotalLagrangianStressDivergenceA acts on one field variable
+/// Thus, each instance of HomogenizedTotalLagrangianStressDivergenceR acts on one field variable
 /// (_disp_alpha) and one scalar variable (_hvar_beta). The job of the kernel is to assemble the
-/// residual of all dofs of _disp_alpha and of all dofs of _hvar_beta (namely, selected entries).
-/// It assembles a symmetric portion of the Jacobian for _disp_alpha and _hvar_beta, with some
-/// logical checks to access only the particular desired terms (often for _alpha or _beta = 0).
-/// The entries for the other field/scalar variables are handled by other instances of the
-/// kernel, which have other values of _alpha AND _beta. The logical checks ensure the proper
-/// decomposition of the jobs.
+/// residual of all dofs of _disp_alpha and of all dofs of _hvar_beta (namely, selected rows).
+/// Also, it assembles the ENTIRE row for _disp_alpha and _hvar_beta (namely the columns
+/// from all dofs of all _disp field variables and all dofs of all scalar variables _hvar and
+/// _avar). The rows for the other field/scalar variables are handled by other instances of the
+/// kernel, according to the flags compute_scalar_residuals and compute_field_residuals.
+/// When compute_field_residuals is given, only component=_alpha matters and beta = {0,1} is looped.
+/// When compute_scalar_residuals is given, only prime_scalar=_beta matters and alpha = {0,1,2} is looped.
 ///
 /// In summary, for x=disp_x etc. and h=_hvar and a=_avar, then the contributions of the instances are
-/// _alpha=0, _beta=0
+/// _alpha=0
 /// R = [Rx,  00,  00,  Rh,  00 ]^T
-/// J = [Jxx, Jxy, Jxz, Jxh, 000
-///      Jhx, 000, 000, Jhh, Jha]
-/// _alpha=1, _beta=0
+/// J = [Jxx, Jxy, Jxz, Jxh, Jxa]
+/// _alpha=1
 /// R = [00,  Ry,  00,  00,  00 ]^T
-/// J = [Jyx, Jyy, Jyz, Jyh, 000
-///      000, Jhy, 000, 000, 000]
-/// _alpha=2, _beta=0
+/// J = [Jyx, Jyy, Jyz, Jyh, Jya]
+/// _alpha=2
 /// R = [00,  00,  Rz,  00,  00 ]^T
-/// J = [Jzx, Jzy, Jzz, Jzh, 000
-///      000, 000, Jhz, 000, 000]
-/// _alpha=0, _beta=1
+/// J = [Jzx, Jzy, Jzz, Jzh, Jza]
+/// _beta=0
+/// R = [00,  00,  00,  Rh,  00 ]^T
+/// J = [Jhx, Jhy, Jhz, Jhh, Jha]
+/// _beta=1
 /// R = [00,  00,  00,  00,  Ra ]^T
-/// J = [000, 000, 000, 000, Jxa
-///      Jax, 000, 000, Jah, Jaa]
-/// _alpha=1, _beta=1
-/// R = [00,  00,  00,  00,  00 ]^T
-/// J = [000, 000, 000, 000, Jya
-///      000, Jay, 000, 000, 000]
-/// _alpha=2, _beta=1
-/// R = [00,  00,  00,  00,  00 ]^T
-/// J = [000, 000, 000, 000, Jza
-///      000, 000, Jaz, 000, 000]
+/// J = [Jax, Jay, Jaz, Jah, Jaa]
 ///
 /// In this manner, the full R and J are obtained with NO duplication of jobs:
 /// R = [Rx,  Ry,  Rz,  Rh,  Ra ]^T
@@ -77,11 +69,11 @@ typedef std::map<std::pair<unsigned int, unsigned int>, std::pair<ConstraintType
 ///      Jhx, Jhy, Jhz, Jhh, Jha
 ///      Jax, Jay, Jaz, Jah, Jaa]
 ///
-class HomogenizedTotalLagrangianStressDivergenceA : public TotalLagrangianStressDivergenceS
+class HomogenizedTotalLagrangianStressDivergenceR : public TotalLagrangianStressDivergenceS
 {
 public:
   static InputParameters validParams();
-  HomogenizedTotalLagrangianStressDivergenceA(const InputParameters & parameters);
+  HomogenizedTotalLagrangianStressDivergenceR(const InputParameters & parameters);
 
 protected:
   // Add overrides to base class contributions to only happen for _beta==0, to happen only once
@@ -118,7 +110,7 @@ protected:
   /**
    * Method for computing d-_var-residual / d-_svar at quadrature points.
    */
-  virtual Real computeQpOffDiagJacobianScalar(const unsigned int svar_num) override;
+  virtual Real computeQpOffDiagJacobianScalar(const unsigned int /*svar_num*/) override;
 
   /**
    * Method for computing an off-diagonal jacobian component d-_kappa-residual / d-svar
@@ -143,10 +135,10 @@ protected:
   const VariableValue & _kappa_other;
 
   /// Type of each constraint (stress or strain) for each component
-  HomogenizationA::ConstraintMap _cmap;
+  HomogenizationR::ConstraintMap _cmap;
 
   /// The constraint type; initialize with 'none'
-  HomogenizationA::ConstraintType _ctype = HomogenizationA::ConstraintType::None;
+  HomogenizationR::ConstraintType _ctype = HomogenizationR::ConstraintType::None;
 
   /// Used internally to iterate over each scalar component
   unsigned int _m;

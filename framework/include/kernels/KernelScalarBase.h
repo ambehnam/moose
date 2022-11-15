@@ -106,8 +106,14 @@ protected:
    */
   virtual void initScalarQpOffDiagJacobian(const MooseVariableFEBase &) {}
 
-  /// Whether to compute scalar contributions
+  /// Whether a scalar variable is declared for this kernel
   const bool _use_scalar;
+
+  /// Whether to compute scalar contributions for this instance
+  const bool _compute_scalar_residuals;
+
+  /// Whether to compute field contributions for this instance
+  const bool _compute_field_residuals;
 
   /// A dummy object useful for constructing _kappa when not using scalars
   const VariableValue _kappa_dummy;

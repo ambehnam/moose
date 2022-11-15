@@ -38,4 +38,13 @@
     requirement = "Framework scalar kernel wrapper correctly assembles scalar-to-scalar coupling Jacobian"
     allow_test_objects = true
   []
+  [2d-stressR]
+    type = CSVDiff
+    input = '2drow.i'
+    csvdiff = '2drow_out.csv'
+    cli_args = "constraint_types='stress none none stress stress "
+               "none none none none' targets='stress11 stress12 stress22'"
+    requirement = "Framework scalar kernel wrapper correctly assembles Jacobian by rows"
+    allow_test_objects = true
+  []
 []
