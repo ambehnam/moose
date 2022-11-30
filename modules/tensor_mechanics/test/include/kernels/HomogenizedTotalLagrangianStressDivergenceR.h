@@ -46,7 +46,7 @@ typedef std::map<std::pair<unsigned int, unsigned int>, std::pair<ConstraintType
 ///
 /// In summary, for x=disp_x etc. and h=_hvar and a=_avar, then the contributions of the instances are
 /// _alpha=0
-/// R = [Rx,  00,  00,  Rh,  00 ]^T
+/// R = [Rx,  00,  00,  00,  00 ]^T
 /// J = [Jxx, Jxy, Jxz, Jxh, Jxa]
 /// _alpha=1
 /// R = [00,  Ry,  00,  00,  00 ]^T
