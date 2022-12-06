@@ -84,7 +84,7 @@
     order = FIRST
     family = LAGRANGE
   []
-  [kappa]
+  [epsilon]
     order = SECOND
     family = SCALAR
   []
@@ -96,7 +96,7 @@
 []
 
 [AuxVariables]
-  [kappa_aux]
+  [sigma]
     order = SECOND
     family = SCALAR
   []
@@ -111,9 +111,9 @@
 []
 
 [AuxScalarKernels]
-  [kappa]
+  [sigma]
     type = FunctionScalarAux
-    variable = kappa_aux
+    variable = sigma
     function = '1 3'
     execute_on = initial #timestep_end
   []
@@ -199,9 +199,9 @@
     primary_subdomain = 'primary_right'
     secondary_subdomain = 'secondary_left'
     secondary_variable = u
-    kappa = kappa
-    coupled_scalar = kappa
-    kappa_aux = kappa_aux
+    epsilon = epsilon
+    coupled_scalar = epsilon
+    sigma = sigma
     variable = lm
     correct_edge_dropping = true
   []
@@ -222,9 +222,9 @@
     primary_subdomain = 'primary_top'
     secondary_subdomain = 'secondary_bottom'
     secondary_variable = u
-    kappa = kappa
-    coupled_scalar = kappa
-    kappa_aux = kappa_aux
+    epsilon = epsilon
+    coupled_scalar = epsilon
+    sigma = sigma
     variable = lm
     correct_edge_dropping = true
   []

@@ -16,7 +16,7 @@ setPeriodicSegParam(const InputParameters & params_in)
 {
   // Reset the scalar_variable parameter to a relevant name for this physics
   InputParameters & ret = const_cast<InputParameters &>(params_in);
-  ret.set<VariableName>("scalar_variable") = {params_in.get<VariableName>("kappa")};
+  ret.set<VariableName>("scalar_variable") = {params_in.get<VariableName>("epsilon")};
   return ret;
 }
 }
@@ -31,17 +31,17 @@ PeriodicSegmentalConstraint::validParams()
       "PeriodicSegmentalConstraint enforces macro-micro periodic conditions between "
       "secondary and primary sides of a mortar interface using Lagrange multipliers."
       "Must be used alongside EqualValueConstraint.");
-  params.addRequiredParam<VariableName>("kappa", "Primary coupled scalar variable");
-  params.addRequiredCoupledVar("kappa_aux", "Controlled scalar averaging variable");
+  params.addRequiredParam<VariableName>("epsilon", "Primary coupled scalar variable");
+  params.addRequiredCoupledVar("sigma", "Controlled scalar averaging variable");
 
   return params;
 }
 
 PeriodicSegmentalConstraint::PeriodicSegmentalConstraint(const InputParameters & parameters)
   : DerivativeMaterialInterface<MortarScalarBase>(setPeriodicSegParam(parameters)),
-    _kappa_aux_var(coupledScalar("kappa_aux")),
-    _ka_order(getScalarVar("kappa_aux", 0)->order()),
-    _kappa_aux(coupledScalarValue("kappa_aux"))
+    _kappa_aux_var(coupledScalar("sigma")),
+    _ka_order(getScalarVar("sigma", 0)->order()),
+    _kappa_aux(coupledScalarValue("sigma"))
 {
 }
 

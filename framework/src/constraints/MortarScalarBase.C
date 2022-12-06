@@ -33,9 +33,9 @@ MortarScalarBase::MortarScalarBase(const InputParameters & parameters)
     _use_scalar(isParamValid("scalar_variable") ? true : false),
     _compute_scalar_residuals(!_use_scalar ? false : getParam<bool>("compute_scalar_residuals")),
     _kappa_dummy(),
-    _kappa_var_ptr(
-        _use_scalar ? &_sys.getScalarVariable(_tid, parameters.get<VariableName>("scalar_variable"))
-                    : nullptr),
+    _kappa_var_ptr(_use_scalar ? &_fe_problem.getScalarVariable(
+                                     _tid, parameters.get<VariableName>("scalar_variable"))
+                               : nullptr),
     _kappa_var(_use_scalar ? _kappa_var_ptr->number() : 0),
     _k_order(_use_scalar ? _kappa_var_ptr->order() : 0),
     _kappa(_use_scalar ? (_is_implicit ? _kappa_var_ptr->sln() : _kappa_var_ptr->slnOld())

@@ -6,8 +6,8 @@
     xmax = 1.0
     ymin = -1.0
     ymax = 1.0
-    nx = 2
-    ny = 2
+    nx = 4
+    ny = 4
     elem_type = QUAD9
   []
   [left_block_sidesets]
@@ -63,10 +63,6 @@
     order = SECOND
     family = LAGRANGE
   []
-  [epsilon]
-    order = SECOND
-    family = SCALAR
-  []
   [./lm]
     order = FIRST
     family = LAGRANGE
@@ -79,6 +75,10 @@
     order = SECOND
     family = SCALAR
   []
+  [epsilon]
+    order = SECOND
+    family = SCALAR
+  []
 []
 
 [AuxScalarKernels]
@@ -86,6 +86,12 @@
     type = FunctionScalarAux
     variable = sigma
     function = '1 1'
+    execute_on = initial #timestep_end
+  []
+  [epsilon]
+    type = FunctionScalarAux
+    variable = epsilon
+    function = '-1 -1'
     execute_on = initial #timestep_end
   []
 []
@@ -135,6 +141,7 @@
     sigma = sigma
     variable = lm
     correct_edge_dropping = true
+    compute_scalar_residuals = false
   []
   [mortarbt]
     type = EqualValueConstraint
@@ -158,6 +165,7 @@
     sigma = sigma
     variable = lm
     correct_edge_dropping = true
+    compute_scalar_residuals = false
   []
 []
 
@@ -176,6 +184,5 @@
 []
 
 [Outputs]
-  exodus = true
   csv = true
 []
