@@ -753,14 +753,20 @@ DisplacedProblem::reinitNodesNeighbor(const std::vector<dof_id_type> & nodes, TH
 }
 
 void
-DisplacedProblem::reinitNeighbor(const Elem * elem, unsigned int side, THREAD_ID tid)
+DisplacedProblem::reinitNeighbor(
+    const Elem * elem, unsigned int side, BoundaryID bnd_id, const bool on_interface, THREAD_ID tid)
 {
-  reinitNeighbor(elem, side, tid, nullptr);
+  // Query the Libmesh object BoundaryInfo and see if this bnd_id has adjacent elem & neighbor
+  const bool is_adjacent =
+      on_interface ? _mesh.getMesh().get_boundary_info().is_sideset_adjacent(bnd_id) : true;
+  // const bool is_adjacent = true;
+  reinitNeighbor(elem, side, is_adjacent, tid, nullptr);
 }
 
 void
 DisplacedProblem::reinitNeighbor(const Elem * elem,
                                  unsigned int side,
+                                 const bool is_adjacent,
                                  THREAD_ID tid,
                                  const std::vector<Point> * neighbor_reference_points)
 {
@@ -772,7 +778,7 @@ DisplacedProblem::reinitNeighbor(const Elem * elem,
   for (const auto nl_sys_num : index_range(_displaced_nl))
   {
     _assembly[tid][nl_sys_num]->reinitElemAndNeighbor(
-        elem, side, neighbor, neighbor_side, neighbor_reference_points);
+        elem, side, is_adjacent, neighbor, neighbor_side, neighbor_reference_points);
     _displaced_nl[nl_sys_num]->prepareNeighbor(tid);
     // Called during stateful material property evaluation outside of solve
     _assembly[tid][nl_sys_num]->prepareNeighbor();
@@ -843,9 +849,10 @@ DisplacedProblem::reinitNeighborPhys(const Elem * neighbor,
 }
 
 void
-DisplacedProblem::reinitElemNeighborAndLowerD(const Elem * elem, unsigned int side, THREAD_ID tid)
+DisplacedProblem::reinitElemNeighborAndLowerD(
+    const Elem * elem, unsigned int side, BoundaryID bnd_id, const bool on_interface, THREAD_ID tid)
 {
-  reinitNeighbor(elem, side, tid);
+  reinitNeighbor(elem, side, bnd_id, on_interface, tid);
 
   const Elem * lower_d_elem = _mesh.getLowerDElem(elem, side);
   if (lower_d_elem && lower_d_elem->subdomain_id() == Moose::INTERNAL_SIDE_LOWERD_ID)

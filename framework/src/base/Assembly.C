@@ -1950,6 +1950,7 @@ Assembly::reinit(const Node * node)
 void
 Assembly::reinitElemAndNeighbor(const Elem * elem,
                                 unsigned int side,
+                                const bool is_adjacent,
                                 const Elem * neighbor,
                                 unsigned int neighbor_side,
                                 const std::vector<Point> * neighbor_reference_points)
@@ -1957,6 +1958,18 @@ Assembly::reinitElemAndNeighbor(const Elem * elem,
   _current_neighbor_side = neighbor_side;
 
   reinit(elem, side);
+
+  std::vector<Point> elem_physical_points = _current_q_points_face.stdVector();
+  if (!is_adjacent)
+  {
+    Point pe = elem->build_side_ptr(side)->vertex_average();
+    Point pn = neighbor->build_side_ptr(neighbor_side)->vertex_average();
+    Point offset = pn - pe;
+    for (auto & each_point : elem_physical_points)
+    {
+      each_point += offset;
+    }
+  }
 
   unsigned int neighbor_dim = neighbor->dim();
 
@@ -1967,8 +1980,10 @@ Assembly::reinitElemAndNeighbor(const Elem * elem,
     reference_points_ptr = neighbor_reference_points;
   else
   {
+    // FEInterface::inverse_map(
+    //     neighbor_dim, FEType(), neighbor, _current_q_points_face.stdVector(), reference_points);
     FEInterface::inverse_map(
-        neighbor_dim, FEType(), neighbor, _current_q_points_face.stdVector(), reference_points);
+        neighbor_dim, FEType(), neighbor, elem_physical_points, reference_points);
     reference_points_ptr = &reference_points;
   }
 

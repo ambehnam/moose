@@ -19,12 +19,16 @@ UpdateNeighborElementPairs::validParams()
 
   params.addClassDescription("This is a hard-code adding of a pair.");
   params.addRequiredParam<MeshGeneratorName>("input", "The mesh we want to modify");
+  params.addRequiredParam<std::vector<BoundaryName>>("elem_sidesets",
+                                                     "The element sidesets on the interfaces");
 
   return params;
 }
 
 UpdateNeighborElementPairs::UpdateNeighborElementPairs(const InputParameters & parameters)
-  : MeshGenerator(parameters), _input(getMesh("input"))
+  : MeshGenerator(parameters),
+    _input(getMesh("input")),
+    _elem_sidesets(getParam<std::vector<BoundaryName>>("elem_sidesets"))
 {
 }
 
@@ -32,6 +36,15 @@ std::unique_ptr<MeshBase>
 UpdateNeighborElementPairs::generate()
 {
   std::unique_ptr<MeshBase> mesh = std::move(_input);
+
+  BoundaryInfo & boundary_info = mesh->get_boundary_info();
+  auto sideset_ids = MooseMeshUtils::getBoundaryIDs(*mesh, _elem_sidesets, true);
+  std::set<boundary_id_type> sidesets(sideset_ids.begin(), sideset_ids.end());
+
+  for (auto & bnd_id : sidesets)
+  {
+    boundary_info.sideset_adjacency(bnd_id) = false;
+  }
 
   const unsigned int elem_id = 0;
   const unsigned int neighbor_id = 1;

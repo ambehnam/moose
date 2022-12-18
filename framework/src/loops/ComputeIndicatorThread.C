@@ -155,7 +155,8 @@ ComputeIndicatorThread::onInternalSide(const Elem * elem, unsigned int side)
   SubdomainID block_id = elem->subdomain_id();
   if (_internal_side_indicators.hasActiveBlockObjects(block_id, _tid))
   {
-    _fe_problem.reinitNeighbor(elem, side, _tid);
+    BoundaryID bnd_id = 0; // some dummy number (to bypass adjacency check on interfaces)
+    _fe_problem.reinitNeighbor(elem, side, bnd_id, false, _tid);
 
     // Set up Sentinels so that, even if one of the reinitMaterialsXXX() calls throws, we
     // still remember to swap back during stack unwinding.

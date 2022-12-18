@@ -202,12 +202,17 @@ public:
   virtual void reinitNodeFace(const Node * node, BoundaryID bnd_id, THREAD_ID tid) override;
   virtual void reinitNodes(const std::vector<dof_id_type> & nodes, THREAD_ID tid) override;
   virtual void reinitNodesNeighbor(const std::vector<dof_id_type> & nodes, THREAD_ID tid) override;
-  virtual void reinitNeighbor(const Elem * elem, unsigned int side, THREAD_ID tid) override;
+  virtual void reinitNeighbor(const Elem * elem,
+                              unsigned int side,
+                              BoundaryID bnd_id,
+                              const bool on_interface,
+                              THREAD_ID tid) override;
 
   /**
    * reinitialize neighbor routine
    * @param elem The element driving the reinit (note that this is not the *neighbor*)
    * @param side The side, e.g. face,  of the \p elem that we want to reinit
+   * @param is_adjacent Whether the neighbor is adjacent (true) or separated (false)
    * @param tid The thread for which we are reiniting
    * @param neighbor_reference_points Specify the referrence points for the
    *                                  neighbor element. Useful if the element and neighbor faces are
@@ -215,6 +220,7 @@ public:
    */
   void reinitNeighbor(const Elem * elem,
                       unsigned int side,
+                      const bool is_adjacent,
                       THREAD_ID tid,
                       const std::vector<Point> * neighbor_reference_points);
 
@@ -225,8 +231,11 @@ public:
   virtual void reinitNeighborPhys(const Elem * neighbor,
                                   const std::vector<Point> & physical_points,
                                   THREAD_ID tid) override;
-  virtual void
-  reinitElemNeighborAndLowerD(const Elem * elem, unsigned int side, THREAD_ID tid) override;
+  virtual void reinitElemNeighborAndLowerD(const Elem * elem,
+                                           unsigned int side,
+                                           BoundaryID bnd_id,
+                                           const bool on_interface,
+                                           THREAD_ID tid) override;
   virtual void reinitScalars(THREAD_ID tid, bool reinit_for_derivative_reordering = false) override;
   virtual void reinitOffDiagScalars(THREAD_ID tid) override;
 

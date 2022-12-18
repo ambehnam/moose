@@ -120,7 +120,7 @@ ComputeElemAuxBcsThread<AuxKernelType>::operator()(const ConstBndElemRange & ran
 
           if (compute_interface)
           {
-            _problem.reinitNeighbor(elem, side, _tid);
+            _problem.reinitNeighbor(elem, side, boundary_id, true, _tid);
             _problem.reinitMaterialsNeighbor(neighbor->subdomain_id(), _tid);
             _problem.reinitMaterialsInterface(boundary_id, _tid);
           }

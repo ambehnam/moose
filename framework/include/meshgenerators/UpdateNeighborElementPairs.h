@@ -26,4 +26,6 @@ public:
 protected:
   /// The mesh to modify
   std::unique_ptr<MeshBase> & _input;
+  /// A vector of the names of the element sidesets
+  const std::vector<BoundaryName> _elem_sidesets;
 };

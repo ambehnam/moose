@@ -674,6 +674,7 @@ public:
    *
    * @param elem Element being reinitialized
    * @param side Side of the element
+   * @param is_adjacent Whether the neighbor is adjacent (true) or separated (false)
    * @param neighbor Neighbor facing the element on the side 'side'
    * @param neighbor_side The side id on the neighboring element.
    * @param neighbor_reference_points Optional argument specifying the neighbor reference points. If
@@ -682,6 +683,7 @@ public:
    */
   void reinitElemAndNeighbor(const Elem * elem,
                              unsigned int side,
+                             const bool is_adjacent,
                              const Elem * neighbor,
                              unsigned int neighbor_side,
                              const std::vector<Point> * neighbor_reference_points = nullptr);

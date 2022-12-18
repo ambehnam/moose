@@ -386,7 +386,11 @@ public:
   virtual void reinitNodeFace(const Node * node, BoundaryID bnd_id, THREAD_ID tid) = 0;
   virtual void reinitNodes(const std::vector<dof_id_type> & nodes, THREAD_ID tid) = 0;
   virtual void reinitNodesNeighbor(const std::vector<dof_id_type> & nodes, THREAD_ID tid) = 0;
-  virtual void reinitNeighbor(const Elem * elem, unsigned int side, THREAD_ID tid) = 0;
+  virtual void reinitNeighbor(const Elem * elem,
+                              unsigned int side,
+                              BoundaryID bnd_id,
+                              const bool on_interface,
+                              THREAD_ID tid) = 0;
   virtual void reinitNeighborPhys(const Elem * neighbor,
                                   unsigned int neighbor_side,
                                   const std::vector<Point> & physical_points,
@@ -394,7 +398,11 @@ public:
   virtual void reinitNeighborPhys(const Elem * neighbor,
                                   const std::vector<Point> & physical_points,
                                   THREAD_ID tid) = 0;
-  virtual void reinitElemNeighborAndLowerD(const Elem * elem, unsigned int side, THREAD_ID tid) = 0;
+  virtual void reinitElemNeighborAndLowerD(const Elem * elem,
+                                           unsigned int side,
+                                           BoundaryID bnd_id,
+                                           const bool on_interface,
+                                           THREAD_ID tid) = 0;
   /**
    * fills the VariableValue arrays for scalar variables from the solution vector
    * @param tid The thread id

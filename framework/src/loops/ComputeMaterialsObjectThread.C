@@ -173,7 +173,8 @@ ComputeMaterialsObjectThread::onInternalSide(const Elem * elem, unsigned int sid
   {
     const Elem * neighbor = elem->neighbor_ptr(side);
 
-    _fe_problem.reinitElemNeighborAndLowerD(elem, side, _tid);
+    BoundaryID bnd_id = 0; // some dummy number (to bypass adjacency check on interfaces)
+    _fe_problem.reinitElemNeighborAndLowerD(elem, side, bnd_id, false, _tid);
     unsigned int face_n_points = _assembly[_tid][0]->qRuleFace()->n_points();
     _bnd_material_data[_tid]->resize(face_n_points);
     _neighbor_material_data[_tid]->resize(face_n_points);
@@ -278,7 +279,7 @@ ComputeMaterialsObjectThread::onInterface(const Elem * elem, unsigned int side, 
   if (neighbor->active() &&
       (_has_neighbor_stateful_props ||
        (_has_bnd_stateful_props && _interface_materials.hasActiveBoundaryObjects(bnd_id, _tid))))
-    _fe_problem.reinitNeighbor(elem, side, _tid);
+    _fe_problem.reinitNeighbor(elem, side, bnd_id, true, _tid);
 
   if (_has_neighbor_stateful_props && neighbor->active())
   {

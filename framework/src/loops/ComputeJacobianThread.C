@@ -266,7 +266,8 @@ ComputeJacobianThread::onInternalSide(const Elem * elem, unsigned int side)
     // Pointer to the neighbor we are currently working on.
     const Elem * neighbor = elem->neighbor_ptr(side);
 
-    _fe_problem.reinitElemNeighborAndLowerD(elem, side, _tid);
+    BoundaryID bnd_id = 0; // some dummy number (to bypass adjacency check on interfaces)
+    _fe_problem.reinitElemNeighborAndLowerD(elem, side, bnd_id, false, _tid);
 
     // Set up Sentinels so that, even if one of the reinitMaterialsXXX() calls throws, we
     // still remember to swap back during stack unwinding.
@@ -295,7 +296,7 @@ ComputeJacobianThread::onInterface(const Elem * elem, unsigned int side, Boundar
 
     if (neighbor->active())
     {
-      _fe_problem.reinitNeighbor(elem, side, _tid);
+      _fe_problem.reinitNeighbor(elem, side, bnd_id, true, _tid);
 
       // Set up Sentinels so that, even if one of the reinitMaterialsXXX() calls throws, we
       // still remember to swap back during stack unwinding. Note that face, boundary, and interface

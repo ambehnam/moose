@@ -6,7 +6,17 @@
   [./subdomain_id]
     input = msh
     type = UpdateNeighborElementPairs
+    elem_sidesets = 'interface'
   [../]
+  [modifyNode]
+    type = MoveNodeGenerator
+    input = subdomain_id
+    node_id = '5 6 7 4'
+    shift_position = '0 1 0
+                       0 1 0
+                       0 1 0
+                       0 1 0'
+  []
 []
 
 [GlobalParams]

@@ -2049,23 +2049,27 @@ FEProblemBase::reinitOffDiagScalars(THREAD_ID tid)
 }
 
 void
-FEProblemBase::reinitNeighbor(const Elem * elem, unsigned int side, THREAD_ID tid)
+FEProblemBase::reinitNeighbor(
+    const Elem * elem, unsigned int side, BoundaryID bnd_id, const bool on_interface, THREAD_ID tid)
 {
   setNeighborSubdomainID(elem, side, tid);
 
   const Elem * neighbor = elem->neighbor_ptr(side);
   unsigned int neighbor_side = neighbor->which_neighbor_am_i(elem);
+  // Query the Libmesh object BoundaryInfo and see if this bnd_id has adjacent elem & neighbor
+  const bool is_adjacent =
+      on_interface ? _mesh.getMesh().get_boundary_info().is_sideset_adjacent(bnd_id) : true;
+  // const bool is_adjacent = true;
 
   for (const auto i : index_range(_nl))
   {
-    _assembly[tid][i]->reinitElemAndNeighbor(elem, side, neighbor, neighbor_side);
+    _assembly[tid][i]->reinitElemAndNeighbor(elem, side, is_adjacent, neighbor, neighbor_side);
     _nl[i]->prepareNeighbor(tid);
     // Called during stateful material property evaluation outside of solve
     _assembly[tid][i]->prepareNeighbor();
   }
   _aux->prepareNeighbor(tid);
 
-  BoundaryID bnd_id = 0; // some dummy number (it is not really used for anything, right now)
   for (auto & nl : _nl)
   {
     nl->reinitElemFace(elem, side, bnd_id, tid);
@@ -2085,14 +2089,15 @@ FEProblemBase::reinitNeighbor(const Elem * elem, unsigned int side, THREAD_ID ti
       displaced_ref_pts = &_assembly[tid][0]->qRuleNeighbor()->get_points();
 
     _displaced_problem->reinitNeighbor(
-        _displaced_mesh->elemPtr(elem->id()), side, tid, displaced_ref_pts);
+        _displaced_mesh->elemPtr(elem->id()), side, is_adjacent, tid, displaced_ref_pts);
   }
 }
 
 void
-FEProblemBase::reinitElemNeighborAndLowerD(const Elem * elem, unsigned int side, THREAD_ID tid)
+FEProblemBase::reinitElemNeighborAndLowerD(
+    const Elem * elem, unsigned int side, BoundaryID bnd_id, const bool on_interface, THREAD_ID tid)
 {
-  reinitNeighbor(elem, side, tid);
+  reinitNeighbor(elem, side, bnd_id, on_interface, tid);
 
   const Elem * lower_d_elem = _mesh.getLowerDElem(elem, side);
   if (lower_d_elem && lower_d_elem->subdomain_id() == Moose::INTERNAL_SIDE_LOWERD_ID)
@@ -2117,7 +2122,7 @@ FEProblemBase::reinitElemNeighborAndLowerD(const Elem * elem, unsigned int side,
   if (_displaced_problem &&
       (_reinit_displaced_elem || _reinit_displaced_face || _reinit_displaced_neighbor))
     _displaced_problem->reinitElemNeighborAndLowerD(
-        _displaced_mesh->elemPtr(elem->id()), side, tid);
+        _displaced_mesh->elemPtr(elem->id()), side, bnd_id, on_interface, tid);
 }
 
 void
