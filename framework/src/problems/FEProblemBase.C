@@ -2059,7 +2059,6 @@ FEProblemBase::reinitNeighbor(
   // Query the Libmesh object BoundaryInfo and see if this bnd_id has adjacent elem & neighbor
   const bool is_adjacent =
       on_interface ? _mesh.getMesh().get_boundary_info().is_sideset_adjacent(bnd_id) : true;
-  // const bool is_adjacent = true;
 
   for (const auto i : index_range(_nl))
   {

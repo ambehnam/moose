@@ -1959,18 +1959,6 @@ Assembly::reinitElemAndNeighbor(const Elem * elem,
 
   reinit(elem, side);
 
-  std::vector<Point> elem_physical_points = _current_q_points_face.stdVector();
-  if (!is_adjacent)
-  {
-    Point pe = elem->build_side_ptr(side)->vertex_average();
-    Point pn = neighbor->build_side_ptr(neighbor_side)->vertex_average();
-    Point offset = pn - pe;
-    for (auto & each_point : elem_physical_points)
-    {
-      each_point += offset;
-    }
-  }
-
   unsigned int neighbor_dim = neighbor->dim();
 
   const std::vector<Point> * reference_points_ptr;
@@ -1980,8 +1968,19 @@ Assembly::reinitElemAndNeighbor(const Elem * elem,
     reference_points_ptr = neighbor_reference_points;
   else
   {
-    // FEInterface::inverse_map(
-    //     neighbor_dim, FEType(), neighbor, _current_q_points_face.stdVector(), reference_points);
+    // Perform projection of quadrature points from element to neighbor side to find parametric
+    // location of the quadrature points. If the e-n pair are not adjacent, then that means they are
+    // topological neighbors. This implies that all nodes on the face are offset by the same
+    // physical distance, which means that certainly the centroid is offset by the same amount.
+    std::vector<Point> elem_physical_points = _current_q_points_face.stdVector();
+    if (!is_adjacent)
+    {
+      Point points_e = elem->build_side_ptr(side)->vertex_average();
+      Point points_n = neighbor->build_side_ptr(neighbor_side)->vertex_average();
+      Point phys_offset = points_n - points_e;
+      for (auto & each_point : elem_physical_points)
+        each_point += phys_offset;
+    }
     FEInterface::inverse_map(
         neighbor_dim, FEType(), neighbor, elem_physical_points, reference_points);
     reference_points_ptr = &reference_points;

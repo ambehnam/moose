@@ -307,6 +307,14 @@
       rel_err = 1e-5
       detail = "under mode I loading."
     []
+    [split]
+      type = Exodiff
+      input = 'bilinear_split.i'
+      exodiff = bilinear_split_out.e
+      abs_zero = 1e-6
+      rel_err = 1e-5
+      detail = "with add_interface_on_two_sides = split_interface = true."
+    []
     [scale_strength_normal]
       type = Exodiff
       input = 'bilinear_mixed_scale_strength.i'

@@ -386,6 +386,16 @@ public:
   virtual void reinitNodeFace(const Node * node, BoundaryID bnd_id, THREAD_ID tid) = 0;
   virtual void reinitNodes(const std::vector<dof_id_type> & nodes, THREAD_ID tid) = 0;
   virtual void reinitNodesNeighbor(const std::vector<dof_id_type> & nodes, THREAD_ID tid) = 0;
+  /**
+   * Reinitialize FE objects for a neighbor along a particular side. Used for either interface or
+   * internal side objects
+   *
+   * @param elem Element being reinitialized
+   * @param side Side of the element
+   * @param bnd_id The BoundaryID of this interface; unused if on internal side, so 0 is fine
+   * @param on_interface Whether the side is on an interface (true) or internal side (false)
+   * @param tid The thread id
+   */
   virtual void reinitNeighbor(const Elem * elem,
                               unsigned int side,
                               BoundaryID bnd_id,
@@ -398,6 +408,16 @@ public:
   virtual void reinitNeighborPhys(const Elem * neighbor,
                                   const std::vector<Point> & physical_points,
                                   THREAD_ID tid) = 0;
+  /**
+   * Reinitialize FE objects for a neighbor and the lower D element along a particular side. Used
+   * for either interface or internal side objects; currently used only on internal sides
+   *
+   * @param elem Element being reinitialized
+   * @param side Side of the element
+   * @param bnd_id The BoundaryID of this interface; unused if on internal side, so 0 is fine
+   * @param on_interface Whether the side is on an interface (true) or internal side (false)
+   * @param tid The thread id
+   */
   virtual void reinitElemNeighborAndLowerD(const Elem * elem,
                                            unsigned int side,
                                            BoundaryID bnd_id,
