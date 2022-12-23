@@ -1,7 +1,8 @@
 [submodule "libmesh"]
     path = libmesh
-    url = ../../libMesh/libmesh
+    url = git@github.com:ttruster/libmesh.git
     ignore = dirty
+    branch = element-neighbor-pairing
 [submodule "large_media"]
     path = large_media
     url = ../../idaholab/large_media
