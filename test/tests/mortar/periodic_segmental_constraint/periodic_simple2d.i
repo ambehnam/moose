@@ -70,7 +70,12 @@
   [./lm]
     order = FIRST
     family = LAGRANGE
-    block = 'secondary_left secondary_bottom'
+    block = secondary_left
+  [../]
+  [./lambda]
+    order = FIRST
+    family = LAGRANGE
+    block = secondary_bottom
   [../]
 []
 
@@ -85,7 +90,7 @@
   [sigma]
     type = FunctionScalarAux
     variable = sigma
-    function = '1 1'
+    function = '1 2'
     execute_on = initial #timestep_end
   []
 []
@@ -143,7 +148,7 @@
     primary_subdomain = 'primary_top'
     secondary_subdomain = 'secondary_bottom'
     secondary_variable = u
-    variable = lm
+    variable = lambda
     correct_edge_dropping = true
   []
   [periodicbt]
@@ -156,7 +161,7 @@
     epsilon = epsilon
     coupled_scalar = epsilon
     sigma = sigma
-    variable = lm
+    variable = lambda
     correct_edge_dropping = true
   []
 []

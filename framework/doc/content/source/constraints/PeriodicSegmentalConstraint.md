@@ -8,6 +8,10 @@ This `Constraint` demonstrates the usage of the scalar augmentation class descri
 The other terms in the weak form are handled using the [EqualValueConstraint](/EqualValueConstraint.md)
 as described below.
 
+Several methods for imposing periodic boundary conditions exist, each with pros and cons.
+For example, the mortar approach requires an extra Lagrange multiplier field.
+Alternatively, the periodic condition can be imposed by the penalty method using [PenaltyPeriodicSegmentalConstraint.md] or one of the other periodic approaches in `MOOSE`.
+
 This class provides the macro-micro coupling terms to implement periodic boundary conditions
 using the mortar method, as proposed within [!cite](reis_mortar_2014). Alternatively, these
 equations impose an average value of the diffusive flux of a spatial variable over a domain
@@ -44,9 +48,9 @@ As is typical for mixed-field problems with Lagrange multipliers, the shape func
 $u$ and $\lambda$ need to be chosen to satisfy the Babuska-Brezzi inf-sup condition if
 stabilization is not added to the system. As discussed in [!cite](reis_mortar_2014),
 using quadratic $u$ and piecewise linear $\lambda$ (discontinuous at corners) provides
-for stable results.
-
-Alternatively, the periodic condition can be imposed by the penalty method using [PenaltyPeriodicSegmentalConstraint.md] or one of the other periodic approaches in `MOOSE`.
+for stable results. Note that element-discontinuous (e.g. `L2_LAGRANGE` or `MONOMIAL` basis)
+does not produce stable results without interpolation. An easy way to make a discontinuous
+$\lambda$ field at corners is described below.
 
 ## Input File Parameters
 
@@ -81,7 +85,7 @@ are described in the [`Mortar Constraint system`](syntax/Constraints/index.md). 
 projection between two separated surfaces on opposite sides of the domain are naturally
 handled by the system. This is true for both `EqualValueConstraint` and
 `PeriodicSegmentalConstraint`. In fact, the meshes can be nonconforming as long as
-the geometry is conforming, although the choice of $\lambda$\ discretization becomes
+the geometry is conforming, although the choice of $\lambda$ discretization becomes
 more delicate. Note that the `periodic` parameter is NOT needed, but if it is applied
 then it should be the same for BOTH `EqualValueConstraint` and
 `PeriodicSegmentalConstraint`.
@@ -89,6 +93,18 @@ then it should be the same for BOTH `EqualValueConstraint` and
 !alert note title=Parallel offsets
 Due to current restrictions on `AutomaticMortarGeneration`, the opposing surfaces must be
 directly opposite along the unit normal direction.
+
+As mentioned above, the $\lambda$ discretization needs to be continuous along patches
+of element faces (`LAGRANGE`, not `MONOMIAL`) in order to be stable, but must be discontinuous along
+corners of the mesh where the outward unit normal $\hat{n}$ is discontinuous since it is
+a flux variable (see the thrid condition [strong-form]). An easy way to do this is to make a
+separate `LAGRANGE` variable for each 'face' of the model with different $\hat{n}$, which
+usually corresponds with different named side-sets or boundaries used for creating
+lower-dimensional mesh surfaces. This approach is demonstrated in many of the test input files.
+
+!alert warning title=Solver Type NEWTON
+The `PJFNK` solver does not perform well for discrete systems lacking terms on the diagonal
+of the Jacobian matrix, such as this mortar method. Thus, the `NEWTON` solver is recommended.
 
 !syntax parameters /Constraints/PeriodicSegmentalConstraint
 

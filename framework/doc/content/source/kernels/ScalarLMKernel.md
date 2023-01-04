@@ -17,10 +17,10 @@ a single constraint, a single [scalar variable](source/variables/MooseVariableSc
 
 ```
 [Variables]
-  [./lambda]
+  [lambda]
     family = SCALAR
     order = FIRST
-  [../]
+  []
 []
 ```
 
@@ -41,7 +41,7 @@ from the $\lambda$ in [eq:eq1].
 Also, it implements the residual and Jacobian contributions to the scalar Lagrange multiplier
 $\lambda$ constraint equation from the spatial variable $\phi$ in [eq:eq2].
 
-So that the input syntax matches with [ScalarLagrangeMultiplier.md], a `PostProcessor` is required
+So that the input syntax matches with [ScalarLagrangeMultiplier.md], a `Postprocessor` is required
 that computes the total volume of the domain, assigned to the parameter `pp_name`.
 
 Currently, a [NullScalarKernel](source/scalarkernels/NullScalarKernel.md) is required to activate the dependency of the scalar variable within the block or subdomain of this object. See one of the example files listed below.

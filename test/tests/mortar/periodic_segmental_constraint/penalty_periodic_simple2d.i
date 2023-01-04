@@ -80,7 +80,7 @@
   [sigma]
     type = FunctionScalarAux
     variable = sigma
-    function = '1 1'
+    function = '1 2'
     execute_on = initial #timestep_end
   []
 []

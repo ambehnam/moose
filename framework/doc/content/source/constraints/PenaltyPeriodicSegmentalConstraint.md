@@ -1,25 +1,5 @@
 # PenaltyPeriodicSegmentalConstraint
 
-Add the paper reference
-add a weak form term
-
-The `PenaltyPeriodicSegmentalConstraint` a periodic boundary condition between a microscale and
-macroscale field. Coupling is made between a scalar macro-gradient variable and the concentration field within
-the periodic domain. Only the macro to micro coupling terms are handled here. The micro-micro coupling terms
-are handled using the [PenaltyEqualValueConstraint](/PenaltyEqualValueConstraint.md) applied to the same
-primary/secondary pair.
-
-The applied macroscale conjugate gradient is applied as `kappa_aux` vector as an auxillary
-scalar. The computed macroscale gradient `kappa` is equal to this value for isotropic-unitary
-diffusivity. The volume integral of the gradient of the primary field will be equal to these
-imposed values.
-
-The microscale variable is specified using the `primary_variable` parameter.
-If the solution values to be matched are between different variables, the
-`secondary_variable` parameter can also be supplied. The enforcement takes place in a penalty sense,
-which eliminates the need to supply Lagrange multipliers.
-
-
 !syntax description /Constraints/PenaltyPeriodicSegmentalConstraint
 
 ## Description
@@ -27,6 +7,10 @@ which eliminates the need to supply Lagrange multipliers.
 This `Constraint` demonstrates the usage of the scalar augmentation class described in [MortarScalarBase.md].
 The other terms in the weak form are handled using the [PenaltyEqualValueConstraint](/PenaltyEqualValueConstraint.md)
 as described below.
+
+Several methods for imposing periodic boundary conditions exist, each with pros and cons.
+For example, the periodic constraint will only be satisfied approximately by this method.
+Alternatively, the periodic condition can be imposed by the Lagrange multiplier method using [PeriodicSegmentalConstraint.md] or one of the other periodic approaches in `MOOSE`.
 
 This class provides the macro-micro coupling terms to implement periodic boundary conditions
 using the penalty method, which is a subset of the Discontinuous Galerkin method
@@ -52,9 +36,8 @@ as $\llbracket u \rrbracket = u^{+} - u^{-}$ and
 $\llbracket \vec{x} \rrbracket = \vec{x}^{+} - \vec{x}^{-}$, respectively.
 Finally, $\tau$ is a penalty parameter to impose the constraint.
 
-The periodic constraint $\llbracket u \rrbracket = \vec{\epsilon} \cdot \llbracket \vec{x} \rrbracket$
+Note: The periodic constraint $\llbracket u \rrbracket = \vec{\epsilon} \cdot \llbracket \vec{x} \rrbracket$
 will only be satisfied approximately by this method, depending on the size of the penalty parameter.
-Alternatively, the periodic condition can be imposed by the Lagrange multiplier method using [PeriodicSegmentalConstraint.md] or one of the other periodic approaches in `MOOSE`.
 
 ## Input File Parameters
 
