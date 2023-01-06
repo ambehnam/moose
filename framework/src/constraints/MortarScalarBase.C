@@ -146,8 +146,7 @@ void
 MortarScalarBase::computeScalarOffDiagJacobian()
 {
   typedef Moose::MortarType MType;
-  std::array<MType, 3> mortar_types = {
-          {MType::Secondary, MType::Primary, MType::Lower}};
+  std::array<MType, 3> mortar_types = {{MType::Secondary, MType::Primary, MType::Lower}};
 
   auto & ce = _assembly.scalarFieldCouplingEntries();
   for (const auto & it : ce)
@@ -163,8 +162,8 @@ MortarScalarBase::computeScalarOffDiagJacobian()
 
     // Load shape functions of different types for easy access; identical to MortarConstraint.C
     std::array<size_t, 3> shape_space_sizes{{jvariable.dofIndices().size(),
-                                              jvariable.dofIndicesNeighbor().size(),
-                                              jvariable.dofIndicesLower().size()}};
+                                             jvariable.dofIndicesNeighbor().size(),
+                                             jvariable.dofIndicesLower().size()}};
     std::array<const VariablePhiValue *, 3> phis;
     std::array<const VariablePhiGradient *, 3> grad_phis;
     std::array<const VectorVariablePhiValue *, 3> vector_phis;
@@ -234,11 +233,10 @@ MortarScalarBase::computeScalarOffDiagJacobian()
 
       for (const auto & matrix_tag : _matrix_tags)
         _assembly.cacheJacobianBlock(_local_ke,
-                                    _kappa_var_ptr->dofIndices(),
-                                    dof_indices,
-                                    _kappa_var_ptr->scalingFactor(),
-                                    matrix_tag);
-
+                                     _kappa_var_ptr->dofIndices(),
+                                     dof_indices,
+                                     _kappa_var_ptr->scalingFactor(),
+                                     matrix_tag);
     }
   }
 }
