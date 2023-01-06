@@ -67,12 +67,12 @@
     order = SECOND
     family = SCALAR
   []
-  [./lm]
+  [./lm1]
     order = FIRST
     family = LAGRANGE
     block = secondary_left
   [../]
-  [./lambda]
+  [./lm2]
     order = FIRST
     family = LAGRANGE
     block = secondary_bottom
@@ -125,7 +125,7 @@
     primary_subdomain = 'primary_right'
     secondary_subdomain = 'secondary_left'
     secondary_variable = u
-    variable = lm
+    variable = lm1
     correct_edge_dropping = true
   []
   [periodiclr]
@@ -138,7 +138,7 @@
     epsilon = epsilon
     coupled_scalar = epsilon
     sigma = sigma
-    variable = lm
+    variable = lm1
     correct_edge_dropping = true
   []
   [mortarbt]
@@ -148,7 +148,7 @@
     primary_subdomain = 'primary_top'
     secondary_subdomain = 'secondary_bottom'
     secondary_variable = u
-    variable = lambda
+    variable = lm2
     correct_edge_dropping = true
   []
   [periodicbt]
@@ -161,7 +161,7 @@
     epsilon = epsilon
     coupled_scalar = epsilon
     sigma = sigma
-    variable = lambda
+    variable = lm2
     correct_edge_dropping = true
   []
 []
