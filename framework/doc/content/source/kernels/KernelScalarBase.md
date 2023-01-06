@@ -42,7 +42,7 @@ provided in [non-ad-residual].
 
 !listing framework/src/kernels/Diffusion.C id=non-ad-residual
          re=Real\nDiffusion::computeQpResidual.*?}
-         caption=The C++ weak-form residual statement of [weak-form] as implemented in the Diffusion kernel.
+         caption=The C++ weak-form residual statement of  as implemented in the Diffusion kernel.
 
 This object also overrides the `computeQpJacobian` method to define Jacobian term of [jacobian] as
 shown in [non-ad-jacobian].
@@ -62,7 +62,7 @@ The AD version of this object, [`ADDiffusion`](/ADDiffusion.md), relies on an op
 
 !listing framework/src/kernels/ADDiffusion.C id=ad-residual
          re=ADDiffusion::precomputeQpResidual.*?}
-         caption=The C++ pre-computed portions of the weak-form residual statement of [weak-form] as implemented in the ADDiffusion kernel.
+         caption=The C++ pre-computed portions of the weak-form residual statement of  as implemented in the ADDiffusion kernel.
 
 
 including automatic differentiation description for those augmentation classes that I describe.

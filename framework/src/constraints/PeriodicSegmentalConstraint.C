@@ -138,10 +138,8 @@ PeriodicSegmentalConstraint::computeScalarQpOffDiagJacobian(const Moose::MortarT
 
   switch (mortar_type)
   {
-    case Moose::MortarType::Lower: // Residual_sign -1  ddeltaU_ddisp sign 1;
-                                   // This assumes Galerkin, i.e. (*_phi)[_i][_qp] =
-                                   // _test_secondary[_i][_qp]
-      jac *= _test[_i][_qp];
+    case Moose::MortarType::Lower:
+      jac *= (*_phi)[_j][_qp];
       break;
     default:
       return 0;

@@ -71,8 +71,7 @@ protected:
   /**
    * Method for computing an off-diagonal jacobian component d-_kappa-residual / d-jvar
    */
-  void computeScalarOffDiagJacobian(const Moose::MortarType mortar_type,
-                                    const unsigned int jvar_num);
+  void computeScalarOffDiagJacobian();
 
   /**
    * Method for computing an off-diagonal jacobian component at quadrature points.

@@ -200,15 +200,11 @@ PenaltyPeriodicSegmentalConstraint::computeScalarQpOffDiagJacobian(
 
   switch (mortar_type)
   {
-    case Moose::MortarType::Secondary: // Residual_sign -1  ddeltaU_ddisp sign 1;
-                                       // This assumes Galerkin, i.e. (*_phi)[_i][_qp] =
-                                       // _test_secondary[_i][_qp]
-      jac *= _test_secondary[_i][_qp] * dx(_h);
+    case Moose::MortarType::Secondary:
+      jac *= (*_phi)[_j][_qp] * dx(_h);
       break;
-    case Moose::MortarType::Primary: // Residual_sign -1  ddeltaU_ddisp sign -1;
-                                     // This assumes Galerkin, i.e. (*_phi)[_i][_qp] =
-                                     // _test_primary[_i][_qp]
-      jac *= -_test_primary[_i][_qp] * dx(_h);
+    case Moose::MortarType::Primary:
+      jac *= -(*_phi)[_j][_qp] * dx(_h);
       break;
 
     default:
