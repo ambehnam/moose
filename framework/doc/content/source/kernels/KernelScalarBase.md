@@ -113,7 +113,7 @@ of the Tensor Mechanics module test directory located at `modules/tensor_mechani
 The input files `2dscalar.i` and `2dsole.i` are located in `modules/tensor_mechanics/test/tests/lagrangian/cartesian/total/homogenization/scalar_kernel/`. The comments within these source files should be consulted
 to visualize how the rows and columns of the relevant reseidual and Jacobian contributions are handled.
 
-!alert Note title=Displaced mesh features untested
+!alert note title=Displaced mesh features untested
 The displaced mesh features are not yet tested for the scalar augmentation system.
 
 ## Parameters id=KSB-parameters
