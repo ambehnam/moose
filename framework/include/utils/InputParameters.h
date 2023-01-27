@@ -261,10 +261,12 @@ public:
    * libMesh it brings
    * nothing but blood and tears for those who try ;)
    *
-   * @param name the name of the parameter
+   * @param name The name of the parameter
+   * @param action What the calling method is attempting to do. If this method errors, then
+   * this string will be used in the error message
    */
   template <typename T>
-  void checkConsistentType(const std::string & name) const;
+  void checkConsistentType(const std::string & name, const std::string & action = "set") const;
 
   /**
    * Get the syntax for a command-line parameter
@@ -865,6 +867,7 @@ public:
    * @param new_name The new name of the parameter
    * @param new_docstring The new documentation string for the parameter
    */
+  template <typename T>
   void renameParam(const std::string & old_name,
                    const std::string & new_name,
                    const std::string & new_docstring);
@@ -1469,7 +1472,7 @@ InputParameters::addCommandLineParam(const std::string & name,
 
 template <typename T>
 void
-InputParameters::checkConsistentType(const std::string & name_in) const
+InputParameters::checkConsistentType(const std::string & name_in, const std::string & action) const
 {
   const auto name = checkForRename(name_in);
 
@@ -1481,7 +1484,9 @@ InputParameters::checkConsistentType(const std::string & name_in) const
   // Now, if we already have the Parameter, but it doesn't have the
   // right type, throw an error.
   if (!this->Parameters::have_parameter<T>(name))
-    mooseError("Attempting to set parameter \"",
+    mooseError("Attempting to ",
+               action,
+               " parameter \"",
                name,
                "\" with type (",
                demangle(typeid(T).name()),
@@ -1740,6 +1745,73 @@ InputParameters::isType(const std::string & name_in) const
   if (!_params.count(name))
     mooseError("Parameter \"", name, "\" is not valid.");
   return have_parameter<T>(name);
+}
+
+template <typename T>
+void
+InputParameters::renameParam(const std::string & old_name,
+                             const std::string & new_name,
+                             const std::string & new_docstring)
+{
+  checkConsistentType<T>(old_name, "rename");
+
+  auto params_it = _params.find(old_name);
+  if (params_it == _params.end())
+    mooseError("Requested to rename parameter '",
+               old_name,
+               "' but that parameter name doesn't exist in the parameters object.");
+
+  if constexpr (std::is_base_of<std::string, T>::value)
+    // Log the interfaces we've implemented rename capability for
+    if constexpr (!std::is_same<T, std::string>::value &&
+                  !std::is_same<T, MooseFunctorName>::value &&
+                  !std::is_same<T, NonlinearVariableName>::value &&
+                  !std::is_same<T, AuxVariableName>::value &&
+                  !std::is_same<T, VariableName>::value && !std::is_same<T, FunctionName>::value &&
+                  !std::is_same<T, MooseFunctorName>::value &&
+                  !std::is_same<T, MaterialPropertyName>::value &&
+                  !std::is_same<T, PostprocessorName>::value)
+      mooseError("Attempting to ",
+                 rename,
+                 " parameter \"",
+                 old_name,
+                 "\" with type (",
+                 demangle(typeid(T).name()),
+                 ")\nbut support for renaming that parameter type has not yet been implemented. "
+                 "Please contact a MOOSE developer if you want rename capability for this "
+                 "parameter type to be implemented.");
+
+  auto new_metadata = std::move(params_it->second);
+  new_metadata._doc_string = new_docstring;
+  _params.emplace(new_name, std::move(new_metadata));
+  _params.erase(params_it);
+
+  auto values_it = _values.find(old_name);
+  auto new_value = std::move(values_it->second);
+  _values.emplace(new_name, std::move(new_value));
+  _values.erase(values_it);
+
+  _old_to_new_name.emplace(old_name, new_name);
+  // invalidate the cache
+  _last_checked_rename.first.clear();
+}
+
+template <class T>
+InputParameters
+validParams()
+{
+  // If users forgot to make their (old) validParams, they screwed up and
+  // should get an error - so it is okay for us to try to call the new
+  // validParams static function - which will error if they didn't implement
+  // the new function
+  auto params = T::validParams();
+
+  // If calling the static member method worked, we didn't build these parameters
+  // using the legacy method. Therefore, we won't throw an error for this object
+  // in CheckLegacyParamsAction. This should be removed with the closure of #19439.
+  params._from_legacy_construction = false;
+
+  return params;
 }
 
 namespace moose
