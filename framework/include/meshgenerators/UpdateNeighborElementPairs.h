@@ -27,5 +27,7 @@ protected:
   /// The mesh to modify
   std::unique_ptr<MeshBase> & _input;
   /// A vector of the names of the element sidesets
-  const std::vector<BoundaryName> _elem_sidesets;
+  const std::vector<BoundaryName> _adj_sidesets;
+  /// A vector of the names of the neighbor sidesets
+  const std::vector<BoundaryName> _sep_sidesets;
 };
