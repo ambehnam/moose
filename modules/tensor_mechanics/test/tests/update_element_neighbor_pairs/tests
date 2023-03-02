@@ -1,0 +1,18 @@
+[Tests]
+  [czm_framework]
+    requirement = 'The system shall update the element neighbor pairs in the domain based on a CSV file data'
+    design = 'meshgenerators/UpdateNeighborElementPairs.md'
+    issues = '#11546 #14527 #17156 #18611'
+    [multiple_action_and_materials]
+      type = Exodiff
+      input = 'czm_multiple_action_and_materials_mesh_in.i'
+      exodiff = 'czm_multiple_action_and_materials_mesh_in_out.e'
+      detail = "The system shall allow using multiple CohesiveZoneAction and different cohesive "
+               "materials for different boundaries"
+      cli_args = "Modules/TensorMechanics/CohesiveZoneMaster/strain=FINITE"
+      mesh_mode = 'REPLICATED'
+      recover = false
+      allow_test_objects = true
+    []						
+  []
+[]
