@@ -30,6 +30,26 @@ public:
   /// The neighbor variable number that this interface kernel operates on
   const MooseVariableFE<T> & neighborVariable() const override { return _neighbor_var; }
 
+  /// Selects the correct Jacobian type and routine to call for the primary variable jacobian
+  void computeElementOffDiagJacobian(unsigned int jvar) override;
+
+  /// Selects the correct Jacobian type and routine to call for the secondary variable jacobian
+  void computeNeighborOffDiagJacobian(unsigned int jvar) override;
+  
+  /// Selects the correct Jacobian type and routine to call for the primary variable jacobian
+  virtual void computeElementOffDiagJacobianScalar(unsigned int /*svar*/) override { };
+
+  /// Selects the correct Jacobian type and routine to call for the secondary variable jacobian
+  virtual void computeNeighborOffDiagJacobianScalar(unsigned int /*svar*/) override { } ;  
+
+  /// Computes the residual for the current side.
+  void computeResidual() override;
+
+  /// Computes the jacobian for the current side.
+  void computeJacobian() override;
+
+  void computeResidualAndJacobian() override;
+
 private:
   /**
    * Using the passed DGResidual type, selects the correct test function space and residual block,
@@ -44,6 +64,10 @@ private:
    */
   void computeElemNeighJacobian(Moose::DGJacobianType type) override final;
 
+protected:
+  /// Compute residuals at quadrature points
+  virtual ADReal computeQpResidual(Moose::DGResidualType type) = 0;
+
   /**
    * Using the passed DGJacobian type, selects the correct test function and trial function spaces
    * and
@@ -52,21 +76,10 @@ private:
   void computeOffDiagElemNeighJacobian(Moose::DGJacobianType type,
                                        unsigned int jvar) override final;
 
-  /// Selects the correct Jacobian type and routine to call for the primary variable jacobian
-  void computeElementOffDiagJacobian(unsigned int jvar) override final;
-
-  /// Selects the correct Jacobian type and routine to call for the secondary variable jacobian
-  void computeNeighborOffDiagJacobian(unsigned int jvar) override final;
-
-  /// Computes the residual for the current side.
-  void computeResidual() override final;
-
-  /// Computes the jacobian for the current side.
-  void computeJacobian() override final;
-
-protected:
-  /// Compute residuals at quadrature points
-  virtual ADReal computeQpResidual(Moose::DGResidualType type) = 0;
+  /**
+   * Put necessary evaluations depending on qp but independent on test functions here
+   */
+  virtual void initQpResidual(Moose::DGResidualType /* type */) {}
 
   /// The primary side MooseVariable
   MooseVariableFE<T> & _var;

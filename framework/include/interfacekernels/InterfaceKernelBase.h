@@ -61,6 +61,15 @@ public:
   /// Selects the correct Jacobian type and routine to call for the secondary variable jacobian
   virtual void computeNeighborOffDiagJacobian(unsigned int jvar) = 0;
 
+  virtual void computeElementOffDiagJacobianScalar(unsigned int /*svar_num*/) = 0;
+
+  /// Selects the correct Jacobian type and routine to call for the secondary variable jacobian
+  virtual void computeNeighborOffDiagJacobianScalar(unsigned int /*svar_num*/) = 0;
+  
+  virtual void computeOffDiagJacobian(unsigned int);
+  
+  virtual void computeOffDiagJacobianScalar(unsigned int);  
+  
   void prepareShapes(unsigned int var_num) override final;
 
 protected:
@@ -72,7 +81,13 @@ protected:
   {
     return 0;
   }
+	virtual Real computeQpOffDiagJacobianScalar(const Moose::DGResidualType /*type*/,const unsigned int /*svar_num*/)   {return 0;}
+	
+  virtual void initScalarQpJacobian(const unsigned int /*svar_num*/) {}
+  
+  virtual void precalculateElementOffDiagJacobianScalar(unsigned int /* svar_num */) {}
 
+  virtual void precalculateNeighborOffDiagJacobianScalar(unsigned int /* svar_num */) {}  
   /// The volume of the current neighbor
   const Real & getNeighborElemVolume();
 
@@ -168,3 +183,14 @@ protected:
   /// Mutex that prevents multiple threads from saving into the jacobian aux_var at the same time
   static Threads::spin_mutex _jacoby_vars_mutex;
 };
+
+inline void
+InterfaceKernelBase::computeOffDiagJacobian(unsigned int)
+{
+  mooseError("Must call the computeElementOffDiagJacobian or computeNeighborOffDiagJacobian");
+}
+inline void
+InterfaceKernelBase::computeOffDiagJacobianScalar(unsigned int)
+{
+  mooseError("Must call the computeElementOffDiagJacobianScalar or computeNeighborOffDiagJacobianScalar");
+}
