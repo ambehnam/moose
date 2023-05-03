@@ -1613,6 +1613,13 @@ Assembly::reinitFEFaceNeighbor(const Elem * neighbor, const std::vector<Point> &
       fesd->_curl_phi.shallowCopy(const_cast<std::vector<std::vector<VectorValue<Real>>> &>(
           fe_face_neighbor->get_curl_phi()));
   }
+  // During that last loop the helper objects will have been reinitialized as well
+  // We need to dig out the q_points from it
+  _current_q_points_face_neighbor.shallowCopy(const_cast<std::vector<Point> &>(
+      (*_holder_fe_face_neighbor_helper[neighbor_dim])->get_xyz()));
+  _current_neighbor_normals.shallowCopy(const_cast<std::vector<Point> &>(
+      (*_holder_fe_face_neighbor_helper[neighbor_dim])->get_normals()));
+
 }
 
 void
