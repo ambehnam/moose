@@ -320,5 +320,40 @@ ComputeFullJacobianThread::computeInternalInterFaceJacobian(BoundaryID bnd_id)
           interface_kernel->computeNeighborOffDiagJacobian(jvar);
       }
     }
+    
+		const std::vector<MooseVariableScalar *> & scalar_vars = _nl.getScalarVariables(_tid);
+		if (scalar_vars.size() > 0)
+		{
+		  // go over nl-variables (non-scalar)
+		  const std::vector<MooseVariableFieldBase *> & vars = _nl.getVariables(_tid);
+		  for (const auto & ivariable : vars)
+		    if (ivariable->activeOnSubdomain(_subdomain) > 0 &&
+		        _ik_warehouse->hasActiveBoundaryObjects(bnd_id, _tid))
+		    {
+		      // for each variable get the list of active kernels
+		    const std::vector<std::shared_ptr<InterfaceKernelBase>> & int_ks =
+		        _ik_warehouse->getActiveBoundaryObjects(bnd_id, _tid);
+		      for (const auto & interface_kernel : int_ks)
+		        if (interface_kernel->isImplicit())
+		        {
+		          // now, get the list of coupled scalar vars and compute their off-diag jacobians
+		          const auto & coupled_scalar_vars = interface_kernel->getCoupledMooseScalarVars();
+		          
+		          // Do: dvar / dscalar_var, only want to process only nl-variables (not aux ones)
+		          for (const auto & jvariable : coupled_scalar_vars)
+		            if (_nl.hasScalarVariable(jvariable->name()))
+		            
+		            { 
+		      	      unsigned int ivar = ivariable->number();
+									unsigned int jvar = jvariable->number();
+									if (interface_kernel->variable().number() == ivar)
+										interface_kernel->computeElementOffDiagJacobianScalar(jvar);
+
+									if (interface_kernel->neighborVariable().number() == ivar)
+										interface_kernel->computeNeighborOffDiagJacobianScalar(jvar);
+		            }
+		        }
+		    }
+		}
   }
 }
