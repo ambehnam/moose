@@ -124,13 +124,15 @@ UpdateNeighborElementPairs::generate()
 		int neighbor_id =   csv_data[1][i];
 		int elem_side =     csv_data[2][i];
 		int neighbor_side = csv_data[3][i];  
+
 	 	std::cout << elem_id << " " << neighbor_id << " " << elem_side << " " << neighbor_side;
 	 	std::cout << std::endl;
 		Elem * current_elem = mesh->elem_ptr(elem_id);
 		Elem * neighbor_elem = mesh->elem_ptr(neighbor_id);
 		current_elem->set_neighbor(elem_side, neighbor_elem);
-		neighbor_elem->set_neighbor(neighbor_side, current_elem);	 	
+		neighbor_elem->set_neighbor(neighbor_side, current_elem);
 	}
+	std::cout << "Element-Neighbor Pairs added for " << csv_data[0].size()<< " elements..."<< std::endl;
   Partitioner::set_node_processor_ids(*mesh);
   return dynamic_pointer_cast<MeshBase>(mesh);
 }

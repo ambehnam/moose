@@ -65,11 +65,11 @@ public:
 
   /// Selects the correct Jacobian type and routine to call for the secondary variable jacobian
   virtual void computeNeighborOffDiagJacobianScalar(unsigned int /*svar_num*/) = 0;
-  
+
   virtual void computeOffDiagJacobian(unsigned int);
-  
-  virtual void computeOffDiagJacobianScalar(unsigned int);  
-  
+
+  virtual void computeOffDiagJacobianScalar(unsigned int);
+
   void prepareShapes(unsigned int var_num) override final;
 
 protected:
@@ -81,13 +81,17 @@ protected:
   {
     return 0;
   }
-	virtual Real computeQpOffDiagJacobianScalar(const Moose::DGResidualType /*type*/,const unsigned int /*svar_num*/)   {return 0;}
+  virtual Real computeQpOffDiagJacobianScalar(const Moose::DGResidualType /*type*/,
+                                              const unsigned int /*svar_num*/)
+  {
+    return 0;
+  }
 	
-  virtual void initScalarQpJacobian(const unsigned int /*svar_num*/) {}
-  
+  virtual void initQpJacobianScalar(const unsigned int /*svar_num*/) {}
+
   virtual void precalculateElementOffDiagJacobianScalar(unsigned int /* svar_num */) {}
 
-  virtual void precalculateNeighborOffDiagJacobianScalar(unsigned int /* svar_num */) {}  
+  virtual void precalculateNeighborOffDiagJacobianScalar(unsigned int /* svar_num */) {}
   /// The volume of the current neighbor
   const Real & getNeighborElemVolume();
 
@@ -120,6 +124,9 @@ protected:
 
   /// Array that holds element quadrature point coordinates
   const MooseArray<Point> & _q_point;
+
+  /// Array that holds neighbor quadrature point coordinates
+  const MooseArray<Point> & _q_point_neighbor;
 
   /// Quadrature rule
   const QBase * const & _qrule;
@@ -192,5 +199,6 @@ InterfaceKernelBase::computeOffDiagJacobian(unsigned int)
 inline void
 InterfaceKernelBase::computeOffDiagJacobianScalar(unsigned int)
 {
-  mooseError("Must call the computeElementOffDiagJacobianScalar or computeNeighborOffDiagJacobianScalar");
+  mooseError(
+      "Must call the computeElementOffDiagJacobianScalar or computeNeighborOffDiagJacobianScalar");
 }

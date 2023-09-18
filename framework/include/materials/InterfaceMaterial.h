@@ -117,11 +117,15 @@ protected:
 
   /// Current element
   const Elem * const & _current_elem;
+  /// Current element volume
+  const Real & _current_elem_volume;
   /// Current neighbor element
   const Elem * const & _neighbor_elem;
   /// current side of the current element
   const unsigned int & _current_side;
-  /// current side of the neighbor element
+  /// current side of the current element volume
+  const Real & _current_side_volume;   
+  /// current side of the neighbor element    
   const unsigned int & _neighbor_side;
 };
 

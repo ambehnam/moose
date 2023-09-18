@@ -83,9 +83,28 @@ public:
   /// Computes the jacobian for the current side.
   virtual void computeJacobian() override;
 
+  /// Computes the residual and Jacobian for the current side.
+  virtual void computeResidualAndJacobian() override;
+
   /// Compute residuals at quadrature points
   virtual Real computeQpResidual(Moose::DGResidualType type) = 0;
-  
+
+  /**
+   * Put necessary evaluations depending on qp but independent on test functions here
+   */
+  virtual void initQpResidual(Moose::DGResidualType /* type */) {}
+
+  /**
+   * Put necessary evaluations depending on qp but independent on test and shape functions here
+   */
+  virtual void initQpJacobian(Moose::DGJacobianType /* type */) {}
+
+  /**
+   * Put necessary evaluations depending on qp but independent on test and shape functions here for
+   * off-diagonal Jacobian assembly
+   */
+  virtual void initQpOffDiagJacobian(Moose::DGJacobianType /* type */, unsigned int /* jvar */) {}
+
 protected:
   /// The primary side MooseVariable
   MooseVariableFE<T> & _var;
@@ -137,6 +156,5 @@ protected:
   DenseMatrix<Number> _local_kxx;
   
   /// Used internally to iterate over each scalar component
-  unsigned int _h;
   unsigned int _l;  
 };

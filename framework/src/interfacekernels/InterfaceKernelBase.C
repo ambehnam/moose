@@ -30,7 +30,7 @@ InterfaceKernelBase::validParams()
                         "the case this is true but no displacements "
                         "are provided in the Mesh block the "
                         "undisplaced mesh will still be used.");
-  params.addPrivateParam<bool>("_use_undisplaced_reference_points", false);
+  params.addPrivateParam<bool>("_use_undisplaced_reference_points", false);                        
   params.addParamNamesToGroup("use_displaced_mesh", "Advanced");
 
   params.declareControllable("enable");
@@ -60,6 +60,8 @@ InterfaceKernelBase::validParams()
       "This parameter must exist if diag_save_in variables are specified and must have the same "
       "length as diag_save_in. This vector specifies whether the corresponding aux_var should "
       "save-in jacobian contributions from the primary ('p') or secondary side ('s').");
+  params.addParamNamesToGroup("diag_save_in save_in save_in_var_side diag_save_in_var_side",
+                              "Advanced");
 
   // InterfaceKernels always need one layer of ghosting.
   params.addRelationshipManager("ElementSideNeighborLayers",
@@ -88,6 +90,7 @@ InterfaceKernelBase::InterfaceKernelBase(const InputParameters & parameters)
     _current_side_volume(_assembly.sideElemVolume()),
     _coord_sys(_assembly.coordSystem()),
     _q_point(_assembly.qPointsFace()),
+    _q_point_neighbor(_assembly.qPointsFaceNeighbor()),
     _qrule(_assembly.qRuleFace()),
     _JxW(_assembly.JxWFace()),
     _coord(_assembly.coordTransformation()),

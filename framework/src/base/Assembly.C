@@ -1980,11 +1980,14 @@ Assembly::reinitElemAndNeighbor(const Elem * elem,
     // topological neighbors. This implies that all nodes on the face are offset by the same
     // physical distance, which means that certainly the centroid is offset by the same amount.
     std::vector<Point> elem_physical_points = _current_q_points_face.stdVector();
+    
+    //std::cout<<"is_adjacent "<<is_adjacent<<std::endl;
     if (!is_adjacent)
     {
       Point points_e = elem->build_side_ptr(side)->vertex_average();
       Point points_n = neighbor->build_side_ptr(neighbor_side)->vertex_average();
       Point phys_offset = points_n - points_e;
+      //std::cout<<"phys_offset "<<phys_offset<<"	,"<< elem->id() << ","<<neighbor->id()<<","<< side << ","<<neighbor_side<<std::endl;
       for (auto & each_point : elem_physical_points)
         each_point += phys_offset;
     }

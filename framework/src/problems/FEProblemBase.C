@@ -2053,7 +2053,7 @@ FEProblemBase::reinitNeighbor(
     const Elem * elem, unsigned int side, BoundaryID bnd_id, const bool on_interface, THREAD_ID tid)
 {
   setNeighborSubdomainID(elem, side, tid);
-
+	//std::cout<<"bnd_id "<<bnd_id<<std::endl;
   const Elem * neighbor = elem->neighbor_ptr(side);
   unsigned int neighbor_side = neighbor->which_neighbor_am_i(elem);
   // Query the Libmesh object BoundaryInfo and see if this bnd_id has adjacent elem & neighbor

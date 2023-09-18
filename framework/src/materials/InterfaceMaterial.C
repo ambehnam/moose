@@ -34,8 +34,10 @@ InterfaceMaterial::InterfaceMaterial(const InputParameters & parameters)
     _qrule(_assembly.qRuleFace()),
     _JxW(_assembly.JxWFace()),
     _current_elem(_assembly.elem()),
+    _current_elem_volume(_assembly.elemVolume()),        
     _neighbor_elem(_assembly.neighbor()),
     _current_side(_assembly.side()),
+    _current_side_volume(_assembly.sideElemVolume()),    
     _neighbor_side(_assembly.neighborSide())
 {
   // Fill in the MooseVariable dependencies
