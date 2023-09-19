@@ -170,8 +170,11 @@ InterfaceKernelTempl<T>::computeElemNeighResidual(Moose::DGResidualType type)
     prepareVectorTagNeighbor(_assembly, _neighbor_var.number());
 
   for (_qp = 0; _qp < _qrule->n_points(); _qp++)
+  {
+    initQpResidual(type);
     for (_i = 0; _i < test_space.size(); _i++)
       _local_re(_i) += _JxW[_qp] * _coord[_qp] * computeQpResidual(type);
+  }
 
   accumulateTaggedLocalResidual();
 
@@ -209,6 +212,7 @@ InterfaceKernelTempl<T>::computeResidual()
     return;
 
   precalculateResidual();
+
   // Compute the residual for this element
   computeElemNeighResidual(Moose::Element);
 
@@ -251,9 +255,12 @@ InterfaceKernelTempl<T>::computeElemNeighJacobian(Moose::DGJacobianType type)
     prepareMatrixTagNeighbor(_assembly, ivar, jvar, type);
 
   for (_qp = 0; _qp < _qrule->n_points(); _qp++)
+  {
+    initQpJacobian(type);
     for (_i = 0; _i < test_space.size(); _i++)
       for (_j = 0; _j < loc_phi.size(); _j++)
         _local_ke(_i, _j) += _JxW[_qp] * _coord[_qp] * computeQpJacobian(type);
+  }
 
   accumulateTaggedLocalMatrix();
 
@@ -298,7 +305,7 @@ InterfaceKernelTempl<T>::computeJacobian()
       !_neighbor_var.activeOnSubdomain(_neighbor_elem->subdomain_id()))
     return;
 
-  precalculateJacobian();    
+  precalculateJacobian();
 
   computeElemNeighJacobian(Moose::ElementElement);
   computeElemNeighJacobian(Moose::NeighborNeighbor);
@@ -329,9 +336,12 @@ InterfaceKernelTempl<T>::computeOffDiagElemNeighJacobian(Moose::DGJacobianType t
   // Prevent calling of Jacobian computation if jvar doesn't lie in the current block
   if ((_local_ke.m() == test_space.size()) && (_local_ke.n() == loc_phi.size()))
     for (_qp = 0; _qp < _qrule->n_points(); _qp++)
+    {
+      initQpOffDiagJacobian(type, jvar);
       for (_i = 0; _i < test_space.size(); _i++)
         for (_j = 0; _j < loc_phi.size(); _j++)
           _local_ke(_i, _j) += _JxW[_qp] * _coord[_qp] * computeQpOffDiagJacobian(type, jvar);
+    }
 
   accumulateTaggedLocalMatrix();
 }
@@ -353,22 +363,23 @@ InterfaceKernelTempl<T>::computeElementOffDiagJacobian(unsigned int jvar)
       !_neighbor_var.activeOnSubdomain(_neighbor_elem->subdomain_id()))
     return;
 
-  precalculateJacobian();    
-
   bool is_jvar_not_interface_var = true;
   if (jvar == _var.number())
   {
+    precalculateJacobian();
     computeElemNeighJacobian(Moose::ElementElement);
     is_jvar_not_interface_var = false;
   }
   if (jvar == _neighbor_var.number())
   {
+    precalculateJacobian();
     computeElemNeighJacobian(Moose::ElementNeighbor);
     is_jvar_not_interface_var = false;
   }
 
   if (is_jvar_not_interface_var)
   {
+    precalculateOffDiagJacobian(jvar);
     computeOffDiagElemNeighJacobian(Moose::ElementElement, jvar);
     computeOffDiagElemNeighJacobian(Moose::ElementNeighbor, jvar);
   }
@@ -391,23 +402,23 @@ InterfaceKernelTempl<T>::computeNeighborOffDiagJacobian(unsigned int jvar)
       !_neighbor_var.activeOnSubdomain(_neighbor_elem->subdomain_id()))
     return;
 
-  precalculateJacobian();    
-
-
   bool is_jvar_not_interface_var = true;
   if (jvar == _var.number())
   {
+    precalculateJacobian();
     computeElemNeighJacobian(Moose::NeighborElement);
     is_jvar_not_interface_var = false;
   }
   if (jvar == _neighbor_var.number())
   {
+    precalculateJacobian();
     computeElemNeighJacobian(Moose::NeighborNeighbor);
     is_jvar_not_interface_var = false;
   }
 
   if (is_jvar_not_interface_var)
   {
+    precalculateOffDiagJacobian(jvar);
     computeOffDiagElemNeighJacobian(Moose::NeighborElement, jvar);
     computeOffDiagElemNeighJacobian(Moose::NeighborNeighbor, jvar);
   }
@@ -425,7 +436,7 @@ InterfaceKernelTempl<T>::computeElementOffDiagJacobianScalar(unsigned int svar_n
 
   for (_qp = 0; _qp < _qrule->n_points(); _qp++)
   {
-    initScalarQpJacobian(svar_num);
+    initQpJacobianScalar(svar_num);
     for (_i = 0; _i < _test.size(); _i++)
       for (_l = 0; _l < s_order; _l++)
         _local_ke(_i, _l) += _JxW[_qp] * _coord[_qp] * computeQpOffDiagJacobianScalar(Moose::Element, svar_num);
@@ -448,7 +459,7 @@ InterfaceKernelTempl<T>::computeNeighborOffDiagJacobianScalar(unsigned int svar_
 
   for (_qp = 0; _qp < _qrule->n_points(); _qp++)
   {
-    initScalarQpJacobian(svar_num);
+    initQpJacobianScalar(svar_num);
     for (_i = 0; _i < _test_neighbor.size(); _i++)
       for (_l = 0; _l < s_order; _l++)
         _local_ke(_i, _l) += _JxW[_qp] * _coord[_qp] * computeQpOffDiagJacobianScalar(Moose::Neighbor, svar_num);
@@ -456,7 +467,35 @@ InterfaceKernelTempl<T>::computeNeighborOffDiagJacobianScalar(unsigned int svar_
 
   for (const auto & matrix_tag : _matrix_tags)
     _assembly.cacheJacobianBlock(
-        _local_ke, _neighbor_var.dofIndices(), svar.dofIndices(), _neighbor_var.scalingFactor(), matrix_tag); 
+        _local_ke, _neighbor_var.dofIndicesNeighbor(), svar.dofIndices(), _neighbor_var.scalingFactor(), matrix_tag); 
+}
+
+template <typename T>
+void
+InterfaceKernelTempl<T>::computeResidualAndJacobian()
+{
+  computeResidual();
+
+  if (!isImplicit())
+    return;
+
+  for (const auto & [ivariable, jvariable] : _fe_problem.couplingEntries(_tid))
+  {
+    if (ivariable->isFV())
+      continue;
+
+    const unsigned int ivar = ivariable->number();
+    const unsigned int jvar = jvariable->number();
+
+    prepareShapes(jvar);
+    prepareNeighborShapes(jvar);
+
+    if (_var.number() == ivar)
+      computeElementOffDiagJacobian(jvar);
+
+    if (_neighbor_var.number() == ivar)
+      computeNeighborOffDiagJacobian(jvar);
+  }
 }
 
 // Explicitly instantiates the two versions of the InterfaceKernelTempl class
